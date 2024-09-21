@@ -1,1 +1,2 @@
-.venv/Lib/site-packages/.DS_Store
+.venv/*
+.streamlit/secrets.toml
