@@ -5,6 +5,15 @@ from datetime import datetime, timedelta
 import plotly.express as px
 
 
+# Initialize session state variables if they don't exist
+if 'columns_to_plot' not in st.session_state:
+    st.session_state.columns_to_plot = ['weight_cleaned', 'temperature']
+if 'start_date_input' not in st.session_state:
+    st.session_state.start_date_input = None
+if 'end_date_input' not in st.session_state:
+    st.session_state.end_date_input = None
+
+
 # Title and description of the app
 st.title("Bee Health Monitoring")
 with st.expander("About this app"):
@@ -43,8 +52,9 @@ rapid_weight_data['end_date'] = pd.to_datetime(rapid_weight_data['end_date'])
 columns_to_plot = st.sidebar.multiselect(
     "Select the columns to plot",
     ['weight_cleaned', 'temperature', 'humidity'],
-    default=['weight_cleaned','temperature'] 
+    default=st.session_state.columns_to_plot
 )
+st.session_state.columns_to_plot = columns_to_plot
 
 # Default date range is the last day of data
 end_date = data['created_at'].max()
@@ -53,14 +63,16 @@ start_date = end_date - timedelta(days=7)  # Default date range is 7 days
 # Date range filter in sidebar using st.date_input
 start_date_input, end_date_input = st.sidebar.date_input(
     "Select a date range",
-    value=(start_date.date(), end_date.date()),
+    value=(st.session_state.start_date_input or start_date.date(), st.session_state.end_date_input or end_date.date()),
     min_value=data['created_at'].min().date(),
     max_value=data['created_at'].max().date()
 )
-
+st.session_state.start_date_input = start_date_input
+st.session_state.end_date_input = end_date_input
 # Convert the user input to datetime format for filtering, and localize to UTC
 start_date_input = pd.to_datetime(start_date_input).tz_localize('UTC')
 end_date_input = pd.to_datetime(end_date_input).tz_localize('UTC')
+
 
 # Filter the dataframe based on the selected date range
 filtered_data = data[(data['created_at'] >= start_date_input) & (data['created_at'] <= end_date_input)]

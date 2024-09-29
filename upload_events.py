@@ -16,3 +16,6 @@ st.write(f'You selected: {event_type}')
 if st.button('Upload Event'):
     st.write(f'Uploading {event_type} event to the database...')
     # Add your database upload logic here
+    
+    # Show balloons animation when the event is uploaded
+    st.balloons()
