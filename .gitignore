@@ -1,2 +1,6 @@
 .venv/*
 .streamlit/secrets.toml
+retrieved_image.jpg
+events.csv
+.streamlit/test_mongodb_connection.py
+.streamlit/rapid_weight_changes_events.csv

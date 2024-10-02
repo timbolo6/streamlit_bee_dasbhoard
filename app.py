@@ -61,12 +61,20 @@ end_date = data['created_at'].max()
 start_date = end_date - timedelta(days=7)  # Default date range is 7 days
 
 # Date range filter in sidebar using st.date_input
-start_date_input, end_date_input = st.sidebar.date_input(
+date_input = st.sidebar.date_input(
     "Select a date range",
     value=(st.session_state.start_date_input or start_date.date(), st.session_state.end_date_input or end_date.date()),
     min_value=data['created_at'].min().date(),
     max_value=data['created_at'].max().date()
 )
+# Check if both start and end dates is not selected, if not selected stop and return error message
+if len(date_input) != 2:
+    st.warning("Please select both start and end dates.")
+    st.stop
+start_date_input, end_date_input = date_input
+# print the session state variables in the app with st.write
+st.write(f"Start date: {st.session_state.start_date_input}, End date: {st.session_state.end_date_input}")
+
 st.session_state.start_date_input = start_date_input
 st.session_state.end_date_input = end_date_input
 # Convert the user input to datetime format for filtering, and localize to UTC
