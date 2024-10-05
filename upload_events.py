@@ -38,13 +38,15 @@ if st.button('Upload Event'):
     st.write(f'Event Time: {event_time}')
     st.write(f'Event Description: {event_description}')
     
+    # Combine date and time into a single datetime object
+    event_datetime = datetime.combine(event_date, event_time)
+    
     # Prepare the data to be inserted
     data = {
-        'event_date': event_date.isoformat(), 
-        'event_time': event_time.isoformat(), 
+        'event_date': event_datetime, 
         'event_type': event_type, 
         'event_description': event_description, 
-        'created_on': datetime.now().isoformat()
+        'created_on': datetime.now()
     }
     
     if uploaded_image is not None:
@@ -58,9 +60,8 @@ if st.button('Upload Event'):
         data['uploaded_image'] = img_binary
         st.image(uploaded_image, caption='Uploaded Image', use_column_width=True)
         st.write("Image uploaded successfully.")
-        
-        st.image(uploaded_image, caption='Uploaded Image', use_column_width=True)
-        st.write("Image uploaded successfully.")
+    else:
+        data['uploaded_image'] = None
     
     # Add your database upload logic here
     # Read MongoDB URI from secrets.toml
@@ -71,8 +72,6 @@ if st.button('Upload Event'):
     # Select the database and collection
     db = client["beehive_monitoring"]
     collection = db["bee_events"]
-    
-    
     
     # Insert the data into the collection
     collection.insert_one(data)
