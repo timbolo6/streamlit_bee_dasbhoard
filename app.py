@@ -5,6 +5,18 @@ from datetime import datetime, timedelta
 import plotly.express as px
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
+import requests
+
+def get_external_ip():
+    response = requests.get("https://api64.ipify.org?format=json")
+    if response.status_code == 200:
+        data = response.json()
+        return data.get("ip")
+    else:
+        return "Unknown"
+
+external_ip = get_external_ip()
+st.write("External IP:", external_ip)
 
 # Initialize session state variables if they don't exist
 if 'columns_to_plot' not in st.session_state:
