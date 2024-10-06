@@ -16,7 +16,7 @@ def get_external_ip():
         return "Unknown"
 
 external_ip = get_external_ip()
-st.write("External IP:", external_ip)
+
 
 # Initialize session state variables if they don't exist
 if 'columns_to_plot' not in st.session_state:
@@ -38,7 +38,8 @@ with st.expander("About this app"):
     - **Data Preview**: View a snapshot of the filtered data.
 
     Use the sidebar to navigate through the options and customize your view. This tool aims to provide insights into the environmental conditions affecting bee health and help in making informed decisions.
-    """)
+    """
+    "External IP:", external_ip)
 
 # Sidebar components
 st.sidebar.title("Navigation")
