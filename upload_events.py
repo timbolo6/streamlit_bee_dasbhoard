@@ -19,7 +19,7 @@ with col2:
 # Dropdown for selecting event type
 event_type = st.selectbox(
     'Select the event you want to upload:',
-    ('feeding', 'change beehive boxed', 'harvest')
+    ('feeding', 'change beehive box', 'harvest', 'varoa treatment', 'other')
 )
 
 # Free text space (optional)
