@@ -88,9 +88,9 @@ start_date_input, end_date_input = date_input
 st.session_state.start_date_input = start_date_input
 st.session_state.end_date_input = end_date_input
 
-# Convert the user input to datetime format for filtering, and localize to UTC
-start_date_input = pd.to_datetime(start_date_input).tz_localize('UTC')
-end_date_input = pd.to_datetime(end_date_input).tz_localize('UTC')
+# Convert the user input to datetime format for filtering, and localize to Europe/Berlin timezone
+start_date_input = pd.to_datetime(start_date_input).tz_localize('Europe/Berlin')
+end_date_input = pd.to_datetime(end_date_input).tz_localize('Europe/Berlin')
 
 # Filter the dataframe based on the selected date range
 filtered_data = data[(data['created_at'] >= start_date_input) & (data['created_at'] <= end_date_input)]
@@ -158,6 +158,10 @@ uri = st.secrets["mongodb"]["uri"]
 client = MongoClient(uri, server_api=ServerApi('1'))
 db = client["beehive_monitoring"]
 collection = db["bee_events"]
+
+# Adjust start and end date to include the last hour of the day (23:59)
+start_date_input = start_date_input.replace(hour=0, minute=0, second=0, microsecond=0)
+end_date_input = end_date_input.replace(hour=23, minute=59, second=59, microsecond=999999)
 
 # Retrieve the documents with the specified date range from the collection
 cursor = collection.find({
