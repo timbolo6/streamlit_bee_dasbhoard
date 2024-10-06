@@ -163,16 +163,20 @@ collection = db["bee_events"]
 start_date_input = start_date_input.replace(hour=0, minute=0, second=0, microsecond=0)
 end_date_input = end_date_input.replace(hour=23, minute=59, second=59, microsecond=999999)
 
-# Retrieve the documents with the specified date range from the collection
-cursor = collection.find({
-    "event_date": {
-        "$gte": start_date_input,
-        "$lte": end_date_input
-    }
-})
+@st.cache_data
+def load_events(start_date, end_date):
+    # Retrieve the documents with the specified date range from the collection
+    cursor = collection.find({
+        "event_date": {
+            "$gte": start_date,
+            "$lte": end_date
+        }
+    })
+    # Convert cursor to list and create DataFrame
+    events_df = pd.DataFrame(list(cursor))
+    return events_df
 
-# Convert cursor to list and create DataFrame
-events_df = pd.DataFrame(list(cursor))
+events_df = load_events(start_date_input, end_date_input)
 
 st.write("### Uploaded Events")
 if not events_df.empty:
