@@ -1,5 +1,9 @@
 # Bee Health Monitoring App
 
+## Check Out the Streamlit App
+
+Explore the live demo of our bee health monitoring system by visiting the [Streamlit app](https://bee-health-monitoring.streamlit.app/). This app provides real-time insights into the health and status of my beehives, helping me keep my bees healthy.
+
 ## Roadmap
 
 - **Email-Notification for Alerts**
