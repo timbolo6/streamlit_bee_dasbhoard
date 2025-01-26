@@ -57,7 +57,7 @@ st.session_state.columns_to_plot = columns_to_plot
 date_input = st.sidebar.date_input(
     "Select a date range",
     value=(st.session_state.start_date_input or start_date.date(),
-           st.session_state.end_date_input or end_date.date()),
+           st.session_state.end_date_input or end_date.date()+ timedelta(days=1)),
     min_value=data['timestamp'].min().date(),
     max_value=data['timestamp'].max().date() + timedelta(days=1),
 )
@@ -101,6 +101,7 @@ with col3:
 # Plotting Raw Data section
 st.write(
     f"#### Raw Data Plotting: {', '.join([col.capitalize() for col in columns_to_plot])} over time")
+st.write(f"<span style='color: grey;'>Latest timestamp: {data['timestamp'].max().strftime('%H:%M %d-%m-%Y')}</span>", unsafe_allow_html=True)
 fig = px.line(filtered_data.sort_values(by='timestamp'), x='timestamp',
               y=columns_to_plot, line_shape='spline')
 
