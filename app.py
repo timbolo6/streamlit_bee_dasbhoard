@@ -20,7 +20,7 @@ external_ip = get_external_ip()
 
 # Initialize session state variables if they don't exist
 if 'columns_to_plot' not in st.session_state:
-    st.session_state.columns_to_plot = ['weight_cleaned']
+    st.session_state.columns_to_plot = ['weight']
 if 'start_date_input' not in st.session_state:
     st.session_state.start_date_input = None
 if 'end_date_input' not in st.session_state:
@@ -48,35 +48,46 @@ st.sidebar.markdown("Use the sidebar to interact")
 # Load data
 @st.cache_data
 def load_data():
-    sensor_data = pd.read_csv(".streamlit/24-09-21_beehive_cleaned.csv")  
+    uri = st.secrets["mongodb"]["uri"]
+    client = MongoClient(uri, server_api=ServerApi('1'))
+    db = client["beehive_monitoring"]
+    collection = db["bee_sensor_telemetry"]    
+    # Retrieve all documents from the collection
+    cursor = collection.find({})
+    # Convert cursor to list and create DataFrame
+    sensor_data = pd.DataFrame(list(cursor))
     rapid_weight_data = pd.read_csv(".streamlit/rapid_weight_changes_events.csv")
     return sensor_data, rapid_weight_data
 
 data, rapid_weight_data = load_data()
-
-# Convert 'created_at' column to datetime
-data['created_at'] = pd.to_datetime(data['created_at'])
+# Convert 'timestamp' column to datetime
+data['timestamp'] = pd.to_datetime(data['timestamp'], format='mixed', yearfirst=True, utc=True)
 rapid_weight_data['created_at'] = pd.to_datetime(rapid_weight_data['created_at'])
 rapid_weight_data['end_date'] = pd.to_datetime(rapid_weight_data['end_date'])
+
+# Sidebar for selecting beehive_id in data
+beehive_ids = data['beehive_id'].unique()
+selected_beehive_id = st.sidebar.selectbox("Select Beehive ID", beehive_ids)
+data = data[data['beehive_id'] == selected_beehive_id]
 
 # Sidebar for column selection
 columns_to_plot = st.sidebar.multiselect(
     "Select the columns to plot",
-    ['weight_cleaned', 'temperature', 'humidity'],
+    ['weight', 'temperature', 'humidity'],
     default=st.session_state.columns_to_plot
 )
 st.session_state.columns_to_plot = columns_to_plot
 
 # Default date range is the last day of data
-end_date = data['created_at'].max()
+end_date = data['timestamp'].max() + timedelta(days=1)
 start_date = end_date - timedelta(days=7)
 
 # Date range filter in sidebar
 date_input = st.sidebar.date_input(
     "Select a date range",
     value=(st.session_state.start_date_input or start_date.date(), st.session_state.end_date_input or end_date.date()),
-    min_value=data['created_at'].min().date(),
-    max_value=data['created_at'].max().date()
+    min_value=data['timestamp'].min().date(),
+    max_value=data['timestamp'].max().date() + timedelta(days=1),
 )
 
 # Check if both start and end dates are selected
@@ -93,16 +104,16 @@ start_date_input = pd.to_datetime(start_date_input).tz_localize('Europe/Berlin')
 end_date_input = pd.to_datetime(end_date_input).tz_localize('Europe/Berlin')
 
 # Filter the dataframe based on the selected date range
-filtered_data = data[(data['created_at'] >= start_date_input) & (data['created_at'] <= end_date_input)]
+filtered_data = data[(data['timestamp'] >= start_date_input) & (data['timestamp'] <= end_date_input)]
 rapid_weight_data_selected = rapid_weight_data[(rapid_weight_data['end_date'] >= start_date_input) & (rapid_weight_data['created_at'] <= end_date_input)]
 
 # Function to calculate and display metrics
 def calculate_and_display_metric(column_name, column_label, selected_month, col):
     current_month = selected_month.month
     current_year = selected_month.year
-    current_month_data = data[(data['created_at'].dt.month == current_month) & (data['created_at'].dt.year == current_year)]
+    current_month_data = data[(data['timestamp'].dt.month == current_month) & (data['timestamp'].dt.year == current_year)]
     current_month_avg = current_month_data[column_name].mean()
-    previous_years_data = data[(data['created_at'].dt.month == current_month) & (data['created_at'].dt.year < current_year)]
+    previous_years_data = data[(data['timestamp'].dt.month == current_month) & (data['timestamp'].dt.year < current_year)]
     previous_years_avg = previous_years_data[column_name].mean()
     col.metric(
         label=f"Avg. {column_label} {end_date_input.strftime('%B %Y')}",
@@ -114,7 +125,7 @@ def calculate_and_display_metric(column_name, column_label, selected_month, col)
 col1, col2, col3, col4 = st.columns(4)
 
 # Calculate and display metrics for weight, temperature, and humidity
-calculate_and_display_metric('weight_cleaned', 'Weight (kg)', end_date_input, col1)
+calculate_and_display_metric('weight', 'Weight (kg)', end_date_input, col1)
 calculate_and_display_metric('temperature', 'Temp. (°C)', end_date_input, col2)
 calculate_and_display_metric('humidity', 'Humidity (%)', end_date_input, col3)
 
@@ -137,13 +148,13 @@ calculate_and_display_rapid_weight_changes(end_date_input, col4)
 
 # Plotting section
 st.write(f"### Plotting: {', '.join([col.capitalize() for col in columns_to_plot])} over time")
-fig = px.line(filtered_data, x='created_at', y=columns_to_plot, title='Metrics over Time')
+fig = px.line(filtered_data, x='timestamp', y=columns_to_plot, title='Metrics over Time')
 
 # Add intervals from rapid_weight_data_selected
 for _, row in rapid_weight_data_selected.iterrows():
     fill_color = "green" if row['weight_diff'] > 0 else "red"
     fig.add_vrect(
-        x0=row['created_at'], x1=row['end_date'],
+        x0=row['timestamp'], x1=row['end_date'],
         fillcolor=fill_color, opacity=0.3, line_width=3, line_color=fill_color,
     )
 
