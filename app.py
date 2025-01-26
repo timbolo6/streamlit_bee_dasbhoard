@@ -1,22 +1,11 @@
-# Import necessary libraries
 import streamlit as st
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import timedelta
 import plotly.express as px
-from pymongo import MongoClient
-from pymongo.server_api import ServerApi
-import requests
 
-def get_external_ip():
-    response = requests.get("https://api64.ipify.org?format=json")
-    if response.status_code == 200:
-        data = response.json()
-        return data.get("ip")
-    else:
-        return "Unknown"
+from utils import load_raw_data, calculate_and_display_metric, calculate_and_display_rapid_weight_changes, load_events,plot_line_chart,get_external_ip
 
 external_ip = get_external_ip()
-
 
 # Initialize session state variables if they don't exist
 if 'columns_to_plot' not in st.session_state:
@@ -39,57 +28,39 @@ with st.expander("About this app"):
 
     Use the sidebar to navigate through the options and customize your view. This tool aims to provide insights into the environmental conditions affecting bee health and help in making informed decisions.
     """
-    "External IP:", external_ip)
+             "External IP:", external_ip)
 
-# Sidebar components
-st.sidebar.title("Navigation")
-st.sidebar.markdown("Use the sidebar to interact")
-
-# Load data
-@st.cache_data
-def load_data():
-    uri = st.secrets["mongodb"]["uri"]
-    client = MongoClient(uri, server_api=ServerApi('1'))
-    db = client["beehive_monitoring"]
-    collection = db["bee_sensor_telemetry"]    
-    # Retrieve all documents from the collection
-    cursor = collection.find({})
-    # Convert cursor to list and create DataFrame
-    sensor_data = pd.DataFrame(list(cursor))
-    rapid_weight_data = pd.read_csv(".streamlit/rapid_weight_changes_events.csv")
-    return sensor_data, rapid_weight_data
-
-data, rapid_weight_data = load_data()
-# Convert 'timestamp' column to datetime
+#"""Load raw data from MongoDB and CSV file and do some preprocessing"""
+data, rapid_weight_data = load_raw_data()
 data['timestamp'] = pd.to_datetime(data['timestamp'], format='mixed', yearfirst=True, utc=True)
 rapid_weight_data['created_at'] = pd.to_datetime(rapid_weight_data['created_at'])
 rapid_weight_data['end_date'] = pd.to_datetime(rapid_weight_data['end_date'])
 
-# Sidebar for selecting beehive_id in data
+# Default date range is the last day of data
+end_date = data['timestamp'].max()
+start_date = end_date - timedelta(days=30)
+
+#"""Sidebar components"""
+st.sidebar.title("Settings")
+## Sidebar for selecting beehive_id in data
 beehive_ids = data['beehive_id'].unique()
 selected_beehive_id = st.sidebar.selectbox("Select Beehive ID", beehive_ids)
 data = data[data['beehive_id'] == selected_beehive_id]
-
-# Sidebar for column selection
+## Sidebar for column selection
 columns_to_plot = st.sidebar.multiselect(
     "Select the columns to plot",
     ['weight', 'temperature', 'humidity'],
     default=st.session_state.columns_to_plot
 )
 st.session_state.columns_to_plot = columns_to_plot
-
-# Default date range is the last day of data
-end_date = data['timestamp'].max() + timedelta(days=1)
-start_date = end_date - timedelta(days=7)
-
 # Date range filter in sidebar
 date_input = st.sidebar.date_input(
     "Select a date range",
-    value=(st.session_state.start_date_input or start_date.date(), st.session_state.end_date_input or end_date.date()),
+    value=(st.session_state.start_date_input or start_date.date(),
+           st.session_state.end_date_input or end_date.date()),
     min_value=data['timestamp'].min().date(),
     max_value=data['timestamp'].max().date() + timedelta(days=1),
 )
-
 # Check if both start and end dates are selected
 if len(date_input) != 2:
     st.warning("Please select both start and end dates.")
@@ -98,99 +69,66 @@ if len(date_input) != 2:
 start_date_input, end_date_input = date_input
 st.session_state.start_date_input = start_date_input
 st.session_state.end_date_input = end_date_input
-
 # Convert the user input to datetime format for filtering, and localize to Europe/Berlin timezone
-start_date_input = pd.to_datetime(start_date_input).tz_localize('Europe/Berlin')
+start_date_input = pd.to_datetime(
+    start_date_input).tz_localize('Europe/Berlin')
 end_date_input = pd.to_datetime(end_date_input).tz_localize('Europe/Berlin')
 
-# Filter the dataframe based on the selected date range
-filtered_data = data[(data['timestamp'] >= start_date_input) & (data['timestamp'] <= end_date_input)]
-rapid_weight_data_selected = rapid_weight_data[(rapid_weight_data['end_date'] >= start_date_input) & (rapid_weight_data['created_at'] <= end_date_input)]
+#'''FILTERING DATA'''
+filtered_data = data[(data['timestamp'] >= start_date_input)
+                     & (data['timestamp'] <= end_date_input)]
+rapid_weight_data_selected = rapid_weight_data[(rapid_weight_data['end_date'] >= start_date_input) & (
+    rapid_weight_data['created_at'] <= end_date_input)]
+agg_data = filtered_data.groupby([pd.Grouper(key='timestamp', freq='D'), 'beehive_id']).agg({
+    'weight': 'mean',
+    'temperature': 'mean',
+    'humidity': 'mean'
+}).reset_index()
 
-# Function to calculate and display metrics
-def calculate_and_display_metric(column_name, column_label, selected_month, col):
-    current_month = selected_month.month
-    current_year = selected_month.year
-    current_month_data = data[(data['timestamp'].dt.month == current_month) & (data['timestamp'].dt.year == current_year)]
-    current_month_avg = current_month_data[column_name].mean()
-    previous_years_data = data[(data['timestamp'].dt.month == current_month) & (data['timestamp'].dt.year < current_year)]
-    previous_years_avg = previous_years_data[column_name].mean()
-    col.metric(
-        label=f"Avg. {column_label} {end_date_input.strftime('%B %Y')}",
-        value=f"{current_month_avg:.2f}",
-        delta=f"{current_month_avg - previous_years_avg:.2f} vs previous years"
-    )
 
-# Create columns for metrics
-col1, col2, col3, col4 = st.columns(4)
+col1, col2, col3 = st.columns(3)
 
-# Calculate and display metrics for weight, temperature, and humidity
-calculate_and_display_metric('weight', 'Weight (kg)', end_date_input, col1)
-calculate_and_display_metric('temperature', 'Temp. (°C)', end_date_input, col2)
-calculate_and_display_metric('humidity', 'Humidity (%)', end_date_input, col3)
+with col1:
+    calculate_and_display_metric(data,'weight', 'Weight (kg)', end_date_input, col1)
+    plot_line_chart(agg_data,'weight','green')
+with col2:
+    calculate_and_display_metric(data,'temperature', 'Temp. (°C)', end_date_input, col2)
+    plot_line_chart(agg_data,'temperature','red')
+with col3:
+    calculate_and_display_metric(data,'humidity', 'Humidity (%)', end_date_input, col3)
+    plot_line_chart(agg_data,'humidity','blue')
 
-# Function to calculate and display rapid weight changes
-def calculate_and_display_rapid_weight_changes(selected_month, col):
-    current_month = selected_month.month
-    current_year = selected_month.year
-    current_month_data = rapid_weight_data[(rapid_weight_data['created_at'].dt.month == current_month) & (rapid_weight_data['created_at'].dt.year == current_year)]
-    rapid_weight_event_current_month = current_month_data.shape[0]
-    previous_years_data = rapid_weight_data[(rapid_weight_data['created_at'].dt.month == current_month) & (rapid_weight_data['created_at'].dt.year < current_year)]
-    previous_years_avg = previous_years_data.shape[0] / previous_years_data['created_at'].dt.year.nunique()
-    col.metric(
-        label=f"N° rapid weight changes {selected_month.strftime('%B %Y')}",
-        value=f"{rapid_weight_event_current_month}",
-        delta=f"{rapid_weight_event_current_month - previous_years_avg:.2f} vs previous years"
-    )
-
-# Calculate and display the metric for rapid weight changes
-calculate_and_display_rapid_weight_changes(end_date_input, col4)
-
-# Plotting section
-st.write(f"### Plotting: {', '.join([col.capitalize() for col in columns_to_plot])} over time")
-fig = px.line(filtered_data, x='timestamp', y=columns_to_plot, title='Metrics over Time')
+# Plotting Raw Data section
+st.write(
+    f"#### Raw Data Plotting: {', '.join([col.capitalize() for col in columns_to_plot])} over time")
+fig = px.line(filtered_data.sort_values(by='timestamp'), x='timestamp',
+              y=columns_to_plot, line_shape='spline')
 
 # Add intervals from rapid_weight_data_selected
 for _, row in rapid_weight_data_selected.iterrows():
     fill_color = "green" if row['weight_diff'] > 0 else "red"
     fig.add_vrect(
-        x0=row['timestamp'], x1=row['end_date'],
+        x0=row['created_at'], x1=row['end_date'],
         fillcolor=fill_color, opacity=0.3, line_width=3, line_color=fill_color,
     )
-
 st.plotly_chart(fig)
 
-# Display the data
 st.write("### Detection of rapid weight changes events")
+# Calculate and display the metric for rapid weight changes
+col1, col2, col3 = st.columns(3)
+calculate_and_display_rapid_weight_changes(rapid_weight_data,end_date_input, col1)
 st.write(rapid_weight_data_selected)
-
-# Display events from a MongoDB database in the selected date range
-uri = st.secrets["mongodb"]["uri"]
-client = MongoClient(uri, server_api=ServerApi('1'))
-db = client["beehive_monitoring"]
-collection = db["bee_events"]
-
 # Adjust start and end date to include the last hour of the day (23:59)
-start_date_input = start_date_input.replace(hour=0, minute=0, second=0, microsecond=0)
-end_date_input = end_date_input.replace(hour=23, minute=59, second=59, microsecond=999999)
-
-@st.cache_data
-def load_events(start_date, end_date):
-    # Retrieve the documents with the specified date range from the collection
-    cursor = collection.find({
-        "event_date": {
-            "$gte": start_date,
-            "$lte": end_date
-        }
-    })
-    # Convert cursor to list and create DataFrame
-    events_df = pd.DataFrame(list(cursor))
-    return events_df
+start_date_input = start_date_input.replace(
+    hour=0, minute=0, second=0, microsecond=0)
+end_date_input = end_date_input.replace(
+    hour=23, minute=59, second=59, microsecond=999999)
 
 events_df = load_events(start_date_input, end_date_input)
 
 st.write("### Uploaded Events")
 if not events_df.empty:
-    st.write(events_df[['event_date', 'event_type', 'event_description', 'uploaded_image']])
+    st.write(events_df[['event_date', 'event_type',
+             'event_description', 'uploaded_image']])
 else:
     st.write("No events found in the selected date range.")
