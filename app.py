@@ -40,6 +40,10 @@ rapid_weight_data['end_date'] = pd.to_datetime(rapid_weight_data['end_date'])
 end_date = data['timestamp'].max()
 start_date = end_date - timedelta(days=30)
 
+# add a button that reset the cache
+if st.sidebar.button('Refresh Data'):
+    st.caching.clear_cache()
+
 #"""Sidebar components"""
 st.sidebar.title("Settings")
 ## Sidebar for selecting beehive_id in data
@@ -65,7 +69,7 @@ date_input = st.sidebar.date_input(
 if len(date_input) != 2:
     st.warning("Please select both start and end dates.")
     st.stop()
-
+    
 start_date_input, end_date_input = date_input
 st.session_state.start_date_input = start_date_input
 st.session_state.end_date_input = end_date_input
