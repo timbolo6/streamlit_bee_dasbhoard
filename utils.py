@@ -20,7 +20,7 @@ def get_external_ip():
         return "Unknown"
 
 # Load data
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=3600,show_spinner= "Buzzing in the latest bee data... hold on to your honey!🍯🐝" )
 def load_raw_data():
     uri = st.secrets["mongodb"]["uri"]
     client = MongoClient(uri, server_api=ServerApi('1'))
