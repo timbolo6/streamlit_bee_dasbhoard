@@ -57,7 +57,7 @@ st.session_state.columns_to_plot = columns_to_plot
 date_input = st.sidebar.date_input(
     "Select a date range",
     value=(st.session_state.start_date_input or start_date.date(),
-           st.session_state.end_date_input or end_date.date()+ timedelta(days=1)),
+           st.session_state.end_date_input or end_date.date()),
     min_value=data['timestamp'].min().date(),
     max_value=data['timestamp'].max().date() + timedelta(days=1),
 )
