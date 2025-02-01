@@ -59,7 +59,8 @@ date_input = st.sidebar.date_input(
     value=(st.session_state.start_date_input or start_date.date(),
            st.session_state.end_date_input or end_date.date()),
     min_value=data['timestamp'].min().date(),
-    max_value=data['timestamp'].max().date() + timedelta(days=1),
+    max_value= pd.to_datetime('today').date(),
+    format="DD.MM.YYYY"
 )
 # Check if both start and end dates are selected
 if len(date_input) != 2:
@@ -89,13 +90,13 @@ agg_data = filtered_data.groupby([pd.Grouper(key='timestamp', freq='D'), 'beehiv
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    calculate_and_display_metric(data,'weight', 'Weight (kg)', end_date_input, col1)
+    calculate_and_display_metric(agg_data,'weight', 'Weight (kg)',start_date_input,end_date_input, col1)
     plot_line_chart(agg_data,'weight','green')
 with col2:
-    calculate_and_display_metric(data,'temperature', 'Temp. (°C)', end_date_input, col2)
+    calculate_and_display_metric(agg_data,'temperature', 'Temp. (°C)',start_date_input,end_date_input, col2)
     plot_line_chart(agg_data,'temperature','red')
 with col3:
-    calculate_and_display_metric(data,'humidity', 'Humidity (%)', end_date_input, col3)
+    calculate_and_display_metric(agg_data,'humidity', 'Humidity (%)',start_date_input,end_date_input, col3)
     plot_line_chart(agg_data,'humidity','blue')
 
 # Plotting Raw Data section

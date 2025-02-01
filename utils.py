@@ -72,31 +72,34 @@ def load_agg_data(selected_beehive_id, start_date_input, end_date_input):
 
 
 # Function to calculate and display metrics
-def calculate_and_display_metric(data, column_name, column_label, selected_month, col):
+def calculate_and_display_metric(data, column_name, column_label,start_date_input,end_date_input, col):
     """
     Calculate and display a metric for the given column and selected month.
 
     Args:
         column_name (str): The name of the column to calculate the metric for.
         column_label (str): The label to display for the column.
-        selected_month (datetime): The selected month to calculate the metric for.
+        start_date_input (datetime): The selected start date to calculate the metric for.
+        end_date_input (datetime): The selected end date to calculate the metric for.
         col (streamlit.DeltaGenerator): The Streamlit column to display the metric in.
 
     Returns:
         None
     """
-    current_month = selected_month.month
-    current_year = selected_month.year
-    current_month_data = data[(data['timestamp'].dt.month == current_month) & (
-        data['timestamp'].dt.year == current_year)]
-    current_month_avg = current_month_data[column_name].mean()
-    previous_years_data = data[(data['timestamp'].dt.month == current_month) & (
-        data['timestamp'].dt.year < current_year)]
-    previous_years_avg = previous_years_data[column_name].mean()
+    start_date_value = data['timestamp'].loc[~data[column_name].isna()].iloc[0]
+    end_date_value = data['timestamp'].loc[~data[column_name].isna()].iloc[-1]
+    # Calculate the delta between the values from start to end date
+    start_value = data[column_name].loc[~data[column_name].isna()].iloc[0]
+    end_value = data[column_name].loc[~data[column_name].isna()].iloc[-1]
+    delta_value = end_value - start_value
+    # get unit out of column_label where it is written in brackets
+    unit = column_label.split("(")[1].split(")")[0]
+
     col.metric(
-        label=f"Avg. {column_label} {selected_month.strftime('%B %Y')}",
-        value=f"{current_month_avg:.2f}",
-        delta=f"{current_month_avg - previous_years_avg:.2f} vs previous years"
+        label=f"Current {column_label}",
+        help=f"Range: {start_date_value.strftime('%d.%m.%y')} to {end_date_value.strftime('%d.%m.%y')}",
+        value=f"{end_value:.2f}",
+        delta=f"{delta_value:.2f}{unit}"
     )
 
 
