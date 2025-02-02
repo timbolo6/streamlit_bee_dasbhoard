@@ -9,7 +9,7 @@ external_ip = get_external_ip()
 
 # Initialize session state variables if they don't exist
 if 'columns_to_plot' not in st.session_state:
-    st.session_state.columns_to_plot = ['weight']
+    st.session_state.columns_to_plot =  ['weight', 'temperature', 'humidity']
 if 'start_date_input' not in st.session_state:
     st.session_state.start_date_input = None
 if 'end_date_input' not in st.session_state:
@@ -72,12 +72,12 @@ st.session_state.start_date_input = start_date_input
 st.session_state.end_date_input = end_date_input
 # Convert the user input to datetime format for filtering, and localize to Europe/Berlin timezone
 start_date_input = pd.to_datetime(
-    start_date_input).tz_localize('Europe/Berlin')
+    start_date_input).tz_localize('utc')
 end_date_input = pd.to_datetime(end_date_input).tz_localize('Europe/Berlin')
 
 #'''FILTERING DATA'''
 filtered_data = data[(data['timestamp'] >= start_date_input)
-                     & (data['timestamp'] <= end_date_input)]
+                     & (data['timestamp'] <= end_date_input + timedelta(days=1))]
 rapid_weight_data_selected = rapid_weight_data[(rapid_weight_data['end_date'] >= start_date_input) & (
     rapid_weight_data['created_at'] <= end_date_input)]
 agg_data = filtered_data.groupby([pd.Grouper(key='timestamp', freq='D'), 'beehive_id']).agg({
@@ -85,7 +85,6 @@ agg_data = filtered_data.groupby([pd.Grouper(key='timestamp', freq='D'), 'beehiv
     'temperature': 'mean',
     'humidity': 'mean'
 }).reset_index()
-
 
 col1, col2, col3 = st.columns(3)
 

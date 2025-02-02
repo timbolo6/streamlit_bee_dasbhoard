@@ -86,20 +86,27 @@ def calculate_and_display_metric(data, column_name, column_label,start_date_inpu
     Returns:
         None
     """
-    start_date_value = data['timestamp'].loc[~data[column_name].isna()].iloc[0]
-    end_date_value = data['timestamp'].loc[~data[column_name].isna()].iloc[-1]
-    # Calculate the delta between the values from start to end date
-    start_value = data[column_name].loc[~data[column_name].isna()].iloc[0]
-    end_value = data[column_name].loc[~data[column_name].isna()].iloc[-1]
-    delta_value = end_value - start_value
+    try:
+        start_date_value = data['timestamp'].loc[~data[column_name].isna()].iloc[0]
+        end_date_value = data['timestamp'].loc[~data[column_name].isna()].iloc[-1]
+        # Calculate the delta between the values from start to end date
+        start_value = data[column_name].loc[~data[column_name].isna()].iloc[0]
+        end_value = data[column_name].loc[~data[column_name].isna()].iloc[-1]
+        delta_value = end_value - start_value
+    except IndexError:
+        start_date_value = start_date_input
+        end_date_value = end_date_input
+        start_value = None
+        end_value = None
+        delta_value = None
     # get unit out of column_label where it is written in brackets
     unit = column_label.split("(")[1].split(")")[0]
 
     col.metric(
         label=f"Current {column_label}",
         help=f"Range: {start_date_value.strftime('%d.%m.%y')} to {end_date_value.strftime('%d.%m.%y')}",
-        value=f"{end_value:.2f}",
-        delta=f"{delta_value:.2f}{unit}"
+        value=f"{end_value:.2f}" if end_value is not None else None,
+        delta=f"{delta_value:.2f}{unit}" if delta_value is not None else None
     )
 
 
