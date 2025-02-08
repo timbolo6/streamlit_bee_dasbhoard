@@ -59,7 +59,7 @@ date_input = st.sidebar.date_input(
     value=(st.session_state.start_date_input or start_date.date(),
            st.session_state.end_date_input or end_date.date()),
     min_value=data['timestamp'].min().date(),
-    max_value= pd.to_datetime('today').date(),
+    max_value= pd.to_datetime('today').date()+ timedelta(days=1),
     format="DD.MM.YYYY"
 )
 # Check if both start and end dates are selected
