@@ -100,10 +100,11 @@ with col3:
 
 # Plotting Raw Data section
 st.write(
-    f"#### Raw Data Plotting: {', '.join([col.capitalize() for col in columns_to_plot])} over time")
+    f"#### Raw Data: {', '.join([col.capitalize() for col in columns_to_plot])} over the last 24 hours")
 st.write(f"<span style='color: grey;'>Latest timestamp: {data['timestamp'].max().strftime('%H:%M %d-%m-%Y')}</span>", unsafe_allow_html=True)
-fig = px.line(filtered_data.sort_values(by='timestamp'), x='timestamp',
-              y=columns_to_plot, line_shape='spline')
+fig = px.line(filtered_data[(filtered_data['timestamp'] >= end_date_input - timedelta(days=1))
+                     & (filtered_data['timestamp'] <= end_date_input + timedelta(days=1)) ].sort_values(by='timestamp'), x='timestamp',
+              y=columns_to_plot, line_shape='spline', color_discrete_sequence=['green','red','blue'])
 
 # Add intervals from rapid_weight_data_selected
 for _, row in rapid_weight_data_selected.iterrows():
