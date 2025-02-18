@@ -19,11 +19,15 @@ def show_honey_harvest_page():
         "Harvest Date": ["August '24", "June '24", "September '23", "Mai '23"],
         "Taste Rating": ["⭐⭐⭐⭐", "⭐⭐⭐⭐", "⭐⭐⭐☆", "⭐⭐⭐⭐"],
     }
+    
 
     df = pd.DataFrame(data)
 
     st.subheader("📊 Honey Harvest History")
     st.dataframe(df, hide_index=True)
+    if st.button('Get your own Honey Tasting', icon="🍯", type="secondary", ) :
+        st.balloons()
+        st.toast("📧 Just contact me")
 
     st.subheader("🐝 What Affects the Honey Each Year?")
     st.write("- 🍃 **Flower sources** – Different nectar = different flavors.")
