@@ -33,6 +33,9 @@ with st.expander("About this app"):
 #"""Load raw data from MongoDB and CSV file and do some preprocessing"""
 data, rapid_weight_data = load_raw_data()
 data['timestamp'] = pd.to_datetime(data['timestamp'], format='mixed', yearfirst=True, utc=True)
+data['weight'] = pd.to_numeric(data['weight'], errors='coerce')
+data['temperature'] = pd.to_numeric(data['temperature'], errors='coerce')
+data['humidity'] = pd.to_numeric(data['humidity'], errors='coerce')
 rapid_weight_data['created_at'] = pd.to_datetime(rapid_weight_data['created_at'])
 rapid_weight_data['end_date'] = pd.to_datetime(rapid_weight_data['end_date'])
 
