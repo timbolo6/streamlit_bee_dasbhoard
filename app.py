@@ -46,8 +46,8 @@ start_date = end_date - timedelta(days=30)
 #"""Sidebar components"""
 st.sidebar.title("Settings")
 ## Sidebar for selecting beehive_id in data
-beehive_ids = data['beehive_id'].unique()
-selected_beehive_id = st.sidebar.selectbox("Select Beehive ID", beehive_ids)
+beehive_ids = sorted(data['beehive_id'].unique())
+selected_beehive_id = st.sidebar.selectbox("Select Beehive ID",options=beehive_ids, key="selected_beehive_id")
 data = data[data['beehive_id'] == selected_beehive_id]
 ## Sidebar for column selection
 columns_to_plot = st.sidebar.multiselect(
