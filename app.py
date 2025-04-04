@@ -142,12 +142,32 @@ with tab2:
         options=beehive_ids,
         default=[st.session_state.selected_beehive_id, random_beehive_id]
     )
-    if selected_beehives:
-        filtered_data_comparison = agg_data[agg_data['beehive_id'].isin(
-            selected_beehives)]
-        fig = px.line(filtered_data_comparison, x='timestamp', y=columns_to_plot, color='beehive_id',
-                      line_shape='spline', color_discrete_sequence=['orange', 'purple', 'grey'])
-        st.plotly_chart(fig)
+    normalize_data = st.checkbox("Normalize data to get relative change", value=True, help="Normalize each selected column per beehive, starting at 100%. For example: Sensor A starts at 50g, Sensor B at 100g — but both grow 20%. This will show both going from 100 to 120 (as %), highlighting relative change independent of initial value.")
+
+    if selected_beehives: 
+        filtered_data_comparison = agg_data[agg_data['beehive_id'].isin(selected_beehives)]
+
+    if normalize_data:
+        # Normalize each selected column per beehive, starting at 100%
+        for col in columns_to_plot:
+            filtered_data_comparison[col] = filtered_data_comparison.groupby('beehive_id')[col].transform(
+                lambda x: (x / x.iloc[0]) * 100
+            )
+        y_axis_title = "Relative Change (%)<br><span style='font-size: smaller;'>Initial = 100%</span>"
+    else:
+        y_axis_title = "Value"
+
+    fig = px.line(
+        filtered_data_comparison,
+        x='timestamp',
+        y=columns_to_plot,
+        color='beehive_id',
+        line_shape='spline',
+        color_discrete_sequence=['orange', 'purple', 'grey']
+    )
+    fig.update_yaxes(title_text=y_axis_title)
+    st.plotly_chart(fig)
+
 
 
 with tab3:
