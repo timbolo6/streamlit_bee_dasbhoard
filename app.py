@@ -3,7 +3,7 @@ import streamlit as st
 import pandas as pd
 from datetime import timedelta
 import plotly.express as px
-from utils import load_raw_data, calculate_and_display_metric, calculate_and_display_rapid_weight_changes, load_events, plot_line_chart, get_external_ip
+from utils import load_raw_data, calculate_and_display_metric, calculate_and_display_rapid_weight_changes, load_events, plot_line_chart, get_external_ip, get_forecast
 
 external_ip = get_external_ip()
 
@@ -95,10 +95,12 @@ agg_data = raw_data_date_range.groupby([pd.Grouper(key='timestamp', freq='D'), '
 col1, col2, col3 = st.columns(3)
 agg_data_selected_beehive = agg_data[agg_data['beehive_id']
                                      == st.session_state.selected_beehive_id]
+forecast_weight = get_forecast(
+    st.session_state.selected_beehive_id, agg_data_selected_beehive, horizon=14)
 with col1:
     calculate_and_display_metric(
         agg_data_selected_beehive, 'weight', 'Weight (kg)', start_date_input, end_date_input, col1)
-    plot_line_chart(agg_data_selected_beehive, 'weight', 'green')
+    plot_line_chart(agg_data_selected_beehive, 'weight', 'green',forecast_df=forecast_weight)
 with col2:
     calculate_and_display_metric(agg_data_selected_beehive, 'temperature',
                                  'Temp. (°C)', start_date_input, end_date_input, col2)

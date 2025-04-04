@@ -4,6 +4,7 @@ from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 import plotly.express as px
 import requests
+import joblib
 
 def get_external_ip():
     """
@@ -70,6 +71,42 @@ def load_agg_data(selected_beehive_id, start_date_input, end_date_input):
     agg_data = pd.DataFrame(list(cursor))
     return agg_data
 
+def get_forecast(beehive_id, agg_data, horizon=30):
+    """
+    Returns the forecasted DataFrame from the start of the filtered input data 
+    to 30 days after the last timestamp in the filtered range.
+    
+    Parameters:
+        beehive_id (str): The ID of the beehive
+        agg_data (pd.DataFrame): The full dataset with 'timestamp', 'beehive_id', and 'weight'
+    
+    Returns:
+        forecast (pd.DataFrame): Forecasted values from start to end+30d
+    """
+
+    # Load the pretrained model
+    model = joblib.load(f"./models/prophet_model_{beehive_id}.pkl")
+
+    # Process the data for prediction
+    agg_data['timestamp'] = agg_data['timestamp'].dt.tz_localize(None)
+    agg_data['weight'] = agg_data['weight'].astype(float)
+    agg_data = agg_data[['timestamp', 'weight']].rename(columns={'timestamp': 'ds', 'weight': 'y'}).dropna()
+
+    if agg_data.empty:
+        return pd.DataFrame()  # Return empty DataFrame if no data
+
+    start_date = agg_data['ds'].min()
+    end_date = agg_data['ds'].max()
+    forecast_end_date = end_date + pd.Timedelta(days=horizon)
+
+    # Generate full future frame up to forecast_end_date
+    future = model.make_future_dataframe(periods=horizon, freq='D')
+
+    # Predict and filter forecast to desired window
+    forecast = model.predict(future)
+    forecast_filtered = forecast[(forecast['ds'] >= start_date) & (forecast['ds'] <= forecast_end_date)]
+
+    return forecast_filtered
 
 # Function to calculate and display metrics
 def calculate_and_display_metric(data, column_name, column_label,start_date_input,end_date_input, col):
@@ -140,21 +177,63 @@ def calculate_and_display_rapid_weight_changes(rapid_weight_data,selected_month,
     )
     
 
-def plot_line_chart(data, sensor, color, line_shape='spline', x='timestamp'):
+import plotly.graph_objects as go
+import streamlit as st
+
+def plot_line_chart(data, sensor, color, line_shape='spline', x='timestamp', forecast_df=None):
     """
     Plots a line chart using Plotly and Streamlit.
 
     Parameters:
-    data (DataFrame): The data to plot.
+    data (DataFrame): The historical data to plot.
     sensor (str): The column name of the sensor data to plot.
-    color (str): The color of the line.
+    color (str): The color of the historical line.
     line_shape (str, optional): The shape of the line. Default is 'spline'.
     x (str, optional): The column name for the x-axis. Default is 'timestamp'.
+    forecast_df (DataFrame, optional): A Prophet-style forecast DataFrame with 'ds', 'yhat', 'yhat_lower', 'yhat_upper'
 
     Returns:
     plotly.graph_objs._figure.Figure: The Plotly figure object.
     """
-    fig = px.line(data, x=x, y=sensor, line_shape=line_shape)
-    fig.update_traces(line=dict(color=color))
-    fig.update_layout(height=300, xaxis_title=None, yaxis_title=None)
+    fig = go.Figure()
+
+    # Plot historical data
+    fig.add_trace(go.Scatter(
+        x=data[x],
+        y=data[sensor],
+        mode='lines',
+        name='Historical',
+        line=dict(color=color, shape=line_shape),
+    ))
+
+    # If forecast is provided, overlay forecast + confidence interval
+    if forecast_df is not None:
+        fig.add_trace(go.Scatter(
+            x=forecast_df['ds'],
+            y=forecast_df['yhat'],
+            mode='lines',
+            name='Forecast',
+            line=dict(color='gray', dash='dot'),
+        ))
+
+        # # Add confidence interval shadow (fill between lower and upper)
+        # fig.add_trace(go.Scatter(
+        #     x=pd.concat([forecast_df['ds'], forecast_df['ds'][::-1]]),
+        #     y=pd.concat([forecast_df['yhat_upper'], forecast_df['yhat_lower'][::-1]]),
+        #     fill='toself',
+        #     fillcolor='rgba(128, 128, 128, 0.2)',
+        #     line=dict(color='rgba(255,255,255,0)'),
+        #     hoverinfo="skip",
+        #     name='Confidence Interval',
+        #     showlegend=False
+        # ))
+
+    fig.update_layout(
+        height=250,
+        xaxis_title=None,
+        yaxis_title=None,
+        margin=dict(l=0, r=0, t=30, b=0),
+        showlegend=False
+    )
+
     return st.plotly_chart(fig, use_container_width=True)
