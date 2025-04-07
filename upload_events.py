@@ -14,13 +14,22 @@ with col1:
     event_date = st.date_input("Select the event date", datetime.now().date())
 
 with col2:
-    event_time = st.time_input("Select the event time", datetime.now().time())
+    event_time = st.time_input("Select the event time")
 
-# Dropdown for selecting event type
-event_type = st.selectbox(
+col1, col2 = st.columns(2)
+with col1:
+  # Dropdown for selecting event type
+    event_type = st.selectbox(
     'Select the event you want to upload:',
     ('feeding', 'change beehive box', 'harvest', 'varoa treatment', 'other')
 )
+with col2:
+    # Dropdown for selecting hive number
+    hive_id = st.selectbox(
+        'Select the hive id:',
+        ('1', '2')
+    )
+
 
 # Free text space (optional)
 event_description = st.text_area("Event Description (optional)")
@@ -29,7 +38,7 @@ event_description = st.text_area("Event Description (optional)")
 uploaded_image = st.camera_input("Take a picture (optional)")
 
 # Display the selected event type
-st.write(f'You selected: {event_type}')
+st.write(f'You selected: {event_type} for hive {hive_id}')
 
 # Placeholder for future functionality to upload the event to the database
 if st.button('Upload Event'):
@@ -43,6 +52,7 @@ if st.button('Upload Event'):
     
     # Prepare the data to be inserted
     data = {
+        'hive_id': hive_id,
         'event_date': event_datetime, 
         'event_type': event_type, 
         'event_description': event_description, 
