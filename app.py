@@ -174,7 +174,7 @@ with tab2:
 
 with tab3:
     
-    events_df = load_events(start_date_input, end_date_input, selected_beehive_id="1")
+    events_df = load_events(start_date_input, end_date_input, selected_beehive_id=st.session_state.selected_beehive_id)
     if events_df.empty:
       pass
     else:
