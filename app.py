@@ -112,7 +112,7 @@ with col3:
 
 # Create different tabs
 tab1, tab2, tab3 = st.tabs(
-    ["Raw Data", "Beehive comparison", "Rapid Weight Changes"])
+    ["Raw Data", "Beehive comparison", "Events"])
 with tab1:
     raw_data_date_range_selected_beehive = raw_data_date_range[
         raw_data_date_range['beehive_id'] == st.session_state.selected_beehive_id]
@@ -173,23 +173,24 @@ with tab2:
 
 
 with tab3:
-    st.write("### Detection of rapid weight changes events")
-    # Calculate and display the metric for rapid weight changes
-    col1, col2, col3 = st.columns(3)
-    calculate_and_display_rapid_weight_changes(
-        rapid_weight_data, end_date_input, col1)
-    st.write(rapid_weight_data_selected)
-    # Adjust start and end date to include the last hour of the day (23:59)
-    start_date_input = start_date_input.replace(
-        hour=0, minute=0, second=0, microsecond=0)
-    end_date_input = end_date_input.replace(
-        hour=23, minute=59, second=59, microsecond=999999)
-
-    events_df = load_events(start_date_input, end_date_input)
-
-    st.write("### Uploaded Events")
-    if not events_df.empty:
-        st.write(events_df[['event_date', 'event_type',
-                            'event_description', 'uploaded_image']])
+    
+    events_df = load_events(start_date_input, end_date_input, selected_beehive_id="1")
+    if events_df.empty:
+      pass
     else:
-        st.write("No events found in the selected date range.")
+        st.write("### Events")
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Uploaded Events", len(events_df), delta_color="normal")
+        with col2:
+            calculate_and_display_rapid_weight_changes(
+            rapid_weight_data, end_date_input, col2)
+        st.dataframe(events_df[['event_date', 'event_type',
+                                'event_description', 'uploaded_image']])
+        st.dataframe(rapid_weight_data_selected)
+        # Adjust start and end date to include the last hour of the day (23:59)
+        start_date_input = start_date_input.replace(
+            hour=0, minute=0, second=0, microsecond=0)
+        end_date_input = end_date_input.replace(
+            hour=23, minute=59, second=59, microsecond=999999)
+

@@ -36,23 +36,43 @@ def load_raw_data():
     return sensor_data, rapid_weight_data
 
 @st.cache_data(ttl=3600)
-def load_events(start_date, end_date):
-    # Display events from a MongoDB database in the selected date range
-    uri = st.secrets["mongodb"]["uri"]
-    client = MongoClient(uri, server_api=ServerApi('1'))
-    db = client["beehive_monitoring"]
-    collection = db["bee_events"]
+def load_events(start_date, end_date, selected_beehive_id):
+    """
+    Load events from a MongoDB database within the specified date range and for the selected beehive.
 
-    # Retrieve the documents with the specified date range from the collection
-    cursor = collection.find({
-        "event_date": {
-            "$gte": start_date,
-            "$lte": end_date
-        }
-    })
-    # Convert cursor to list and create DataFrame
-    events_df = pd.DataFrame(list(cursor))
-    return events_df
+    Args:
+        start_date (datetime): The start date for filtering events.
+        end_date (datetime): The end date for filtering events.
+        selected_beehive_id (str): The ID of the selected beehive.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the events data.
+    """
+    try:
+        uri = st.secrets["mongodb"]["uri"]
+        client = MongoClient(uri, server_api=ServerApi('1'))
+        db = client["beehive_monitoring"]
+        collection = db["bee_events"]
+
+        # Retrieve the documents with the specified date range from the collection
+        cursor = collection.find({
+            "event_date": {
+                "$gte": start_date,
+                "$lte": end_date
+            },
+            "hive_id": selected_beehive_id
+        })
+
+        # Convert cursor to list and create DataFrame
+        events_df = pd.DataFrame(list(cursor))
+
+        if events_df.empty:
+            st.warning("No events found for the selected date range and beehive.")
+        return events_df
+
+    except Exception as e:
+        st.error(f"An error occurred while loading events: {e}")
+        return pd.DataFrame()  # Return an empty DataFrame in case of error
 
 
 @st.cache_data
