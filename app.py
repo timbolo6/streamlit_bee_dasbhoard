@@ -121,7 +121,7 @@ with tab1:
     st.write(
         f"#### Raw Data: {', '.join([col.capitalize() for col in columns_to_plot])} over the last 24 hours")
     st.write(
-        f"<span style='color: grey;'>Latest timestamp: {raw_data['timestamp'].max().strftime('%H:%M %d-%m-%Y')}</span>", unsafe_allow_html=True)
+        f"<span style='color: grey;'>Latest timestamp: {raw_data_date_range_selected_beehive['timestamp'].max().strftime('%H:%M %d-%m-%Y')}</span>", unsafe_allow_html=True)
     fig = px.line(raw_data_date_range_selected_beehive[(raw_data_date_range_selected_beehive['timestamp'] >= end_date_input - timedelta(days=1))
                                                        & (raw_data_date_range_selected_beehive['timestamp'] <= end_date_input + timedelta(days=1))].sort_values(by='timestamp'), x='timestamp',
                   y=columns_to_plot, line_shape='spline', color_discrete_sequence=['green', 'red', 'blue'])
