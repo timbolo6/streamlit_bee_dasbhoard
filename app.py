@@ -51,7 +51,7 @@ st.sidebar.title("Settings")
 # Sidebar for selecting beehive_id in data
 beehive_ids = sorted(raw_data['beehive_id'].unique().tolist())
 st.sidebar.selectbox("Select Beehive ID",
-                     options=beehive_ids, key="selected_beehive_id")
+                     options=beehive_ids, key="selected_beehive_id", index=random.randint(0, len(beehive_ids) - 1))
 # Sidebar for column selection
 columns_to_plot = st.sidebar.multiselect(
     "Select the columns to plot",
