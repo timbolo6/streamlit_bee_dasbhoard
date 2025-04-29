@@ -21,7 +21,7 @@ def get_external_ip():
         return "Unknown"
 
 # Load data
-@st.cache_data(ttl=3600,show_spinner= "Buzzing in the latest bee data... hold on to your honey!🍯🐝" )
+@st.cache_data(ttl=600,show_spinner= "Buzzing in the latest bee data... hold on to your honey!🍯🐝" )
 def load_raw_data():
     uri = st.secrets["mongodb"]["uri"]
     client = MongoClient(uri, server_api=ServerApi('1'))
@@ -35,7 +35,7 @@ def load_raw_data():
         ".streamlit/rapid_weight_changes_events.csv")
     return sensor_data, rapid_weight_data
 
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=600)
 def load_events(start_date, end_date, selected_beehive_id):
     """
     Load events from a MongoDB database within the specified date range and for the selected beehive.
