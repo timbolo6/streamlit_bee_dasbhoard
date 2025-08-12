@@ -71,7 +71,7 @@ six==1.16.0
 smmap==5.0.1
 stack-data==0.6.3
 stanio==0.5.1
-streamlit==1.44.1
+streamlit==1.48.0
 tenacity==8.5.0
 toml==0.10.2
 tornado==6.4.1
