@@ -52,6 +52,7 @@ st.sidebar.title("Settings")
 beehive_ids = sorted(raw_data['beehive_id'].unique().tolist())
 st.sidebar.selectbox("Select Beehive ID",
                      options=beehive_ids, key="selected_beehive_id", index=random.randint(0, len(beehive_ids) - 1))
+
 # Sidebar for column selection
 columns_to_plot = st.sidebar.multiselect(
     "Select the columns to plot",
@@ -92,6 +93,8 @@ agg_data = raw_data_date_range.groupby([pd.Grouper(key='timestamp', freq='D'), '
     'humidity': 'mean'
 }).reset_index()
 
+if st.session_state.selected_beehive_id == "1":
+    st.warning(body ="Beehive died due to bee robbery on the 30.07.2025",icon=":material/thumb_down:")
 with st.container(border=False):
     col1, col2, col3 = st.columns(3)
     agg_data_selected_beehive = agg_data[agg_data['beehive_id']
@@ -117,17 +120,17 @@ with st.container(border=False):
         plot_line_chart(agg_data_selected_beehive, 'humidity', 'blue')
 
 # Create different tabs
-tab1, tab2, tab3 = st.tabs(
-    ["Raw Data", "Beehive comparison", "Events"])
+tab1, tab2 = st.tabs(
+    ["Raw Data", "Beehive comparison"])
 with tab1:
     raw_data_date_range_selected_beehive = raw_data_date_range[
         raw_data_date_range['beehive_id'] == st.session_state.selected_beehive_id]
     st.write(
-        f"#### Raw Data: {', '.join([col.capitalize() for col in columns_to_plot])} over the last 24 hours")
+        f"#### Raw Data: {', '.join([col.capitalize() for col in columns_to_plot])} over the last 7 days")
     st.write(
-        f"<span style='color: grey;'>Latest timestamp: {raw_data_date_range_selected_beehive['timestamp'].max().strftime('%H:%M %d-%m-%Y')}</span>", unsafe_allow_html=True)
-    fig = px.line(raw_data_date_range_selected_beehive[(raw_data_date_range_selected_beehive['timestamp'] >= end_date_input - timedelta(days=1))
-                                                       & (raw_data_date_range_selected_beehive['timestamp'] <= end_date_input + timedelta(days=1))].sort_values(by='timestamp'), x='timestamp',
+        f"<span style='color: grey;'>Latest timestamp: {raw_data_date_range_selected_beehive['timestamp'].max().strftime('%H:%M %d-%m-%Y')}</span>", unsafe_allow_html=True)    
+    fig = px.line(raw_data_date_range_selected_beehive[(raw_data_date_range_selected_beehive['timestamp'] >= end_date_input - timedelta(days=7))
+                                                       & (raw_data_date_range_selected_beehive['timestamp'] <= end_date_input + timedelta(days=7))].sort_values(by='timestamp'), x='timestamp',
                   y=columns_to_plot, line_shape='spline', color_discrete_sequence=['green', 'red', 'blue'])
 
     # Add intervals from rapid_weight_data_selected
@@ -138,6 +141,25 @@ with tab1:
             fillcolor=fill_color, opacity=0.3, line_width=3, line_color=fill_color,
         )
     st.plotly_chart(fig)
+    events_df = load_events(start_date_input, end_date_input, selected_beehive_id=st.session_state.selected_beehive_id)
+    if events_df.empty:
+      pass
+    else:
+        st.write("### Events")
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Uploaded Events", len(events_df), delta_color="normal")
+        with col2:
+            calculate_and_display_rapid_weight_changes(
+            rapid_weight_data, end_date_input, col2)
+        st.dataframe(events_df[['event_date', 'event_type',
+                                'event_description', 'uploaded_image']].sort_values(by='event_date', ascending=False))
+        st.dataframe(rapid_weight_data_selected)
+        # Adjust start and end date to include the last hour of the day (23:59)
+        start_date_input = start_date_input.replace(
+            hour=0, minute=0, second=0, microsecond=0)
+        end_date_input = end_date_input.replace(
+            hour=23, minute=59, second=59, microsecond=999999)
 
 with tab2:
     st.write(
@@ -178,25 +200,5 @@ with tab2:
 
 
 
-with tab3:
     
-    events_df = load_events(start_date_input, end_date_input, selected_beehive_id=st.session_state.selected_beehive_id)
-    if events_df.empty:
-      pass
-    else:
-        st.write("### Events")
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.metric("Uploaded Events", len(events_df), delta_color="normal")
-        with col2:
-            calculate_and_display_rapid_weight_changes(
-            rapid_weight_data, end_date_input, col2)
-        st.dataframe(events_df[['event_date', 'event_type',
-                                'event_description', 'uploaded_image']])
-        st.dataframe(rapid_weight_data_selected)
-        # Adjust start and end date to include the last hour of the day (23:59)
-        start_date_input = start_date_input.replace(
-            hour=0, minute=0, second=0, microsecond=0)
-        end_date_input = end_date_input.replace(
-            hour=23, minute=59, second=59, microsecond=999999)
 
