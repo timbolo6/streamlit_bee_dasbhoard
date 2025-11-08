@@ -5,3 +5,5 @@ events.csv
 .streamlit/rapid_weight_changes_events.csv
 .streamlit/test_mongodb.ipynb
 .streamlit/rapid_weight_changes_events.csv
+__pycache__/*
+src/app/__pycache__/*
