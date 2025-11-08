@@ -2,12 +2,12 @@ import streamlit as st
 import pandas as pd
 import urllib.parse
 
-st.title("🍯 Honig bestellen")
+st.header("Unterstütze meine Bienen & Genieße ein Glas Honig 🍯 ")
 
 st.write("""
 Hier kannst du meinen Honig genießen und gleichzeitig etwas Gutes tun 🐝.  
 Dein Beitrag unterstützt meine Bienenvölker und hilft, die Natur zu fördern 🌱.  
-Spenden läuft unkompliziert per PayPal und ich bringe dir das Glas persönlich vorbei 🚴‍♂️🍯
+Spenden läuft per PayPal und ich bringe dir das Glas persönlich vorbei 🚴‍♂️🍯
 """)
 
 # Add an expander for "How it works"
