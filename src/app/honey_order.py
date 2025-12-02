@@ -24,8 +24,8 @@ try:
     stock_df = pd.read_csv(lager_path)
 except FileNotFoundError:
     stock_df = pd.DataFrame([
-        {"Sorte": "Raps", "Vorrat": 10, "Preis (€)": 6.0, "Bild": "src\data\Raps_2025.gif"},
-        {"Sorte": "Sommerblüte", "Vorrat": 5, "Preis (€)": 6.0, "Bild": "src\data\Sommerblüte_2025.gif"},
+        {"Sorte": "Raps", "Vorrat": 10, "Preis (€)": 6.0, "Bild": "src\data\Raps_2025.png"},
+        {"Sorte": "Sommerblüte", "Vorrat": 5, "Preis (€)": 6.0, "Bild": "src\data\Sommerblüte_2025.png"},
     ])
 
 # Display with columns
@@ -35,7 +35,7 @@ for i, row in stock_df.iterrows():
     col = col1 if i % 2 == 0 else col2
     
     # Bild anzeigen
-    col.image(f"src/data/{row['Sorte']}_2025.gif")
+    col.image(f"src/data/{row['Sorte']}_2025.png")
     
     # Verfügbarkeit
     if row["Vorrat"] > 8:
