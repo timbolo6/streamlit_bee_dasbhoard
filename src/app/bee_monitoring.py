@@ -14,6 +14,8 @@ if 'start_date_input' not in st.session_state:
     st.session_state.start_date_input = None
 if 'end_date_input' not in st.session_state:
     st.session_state.end_date_input = None
+if 'raw_data_start_date' not in st.session_state:
+    st.session_state.raw_data_start_date = None
 
 # Title and description of the app
 st.title("Bee Health Monitoring")
@@ -125,22 +127,58 @@ tab1, tab2 = st.tabs(
 with tab1:
     raw_data_date_range_selected_beehive = raw_data_date_range[
         raw_data_date_range['beehive_id'] == st.session_state.selected_beehive_id]
-    st.write(
-        f"#### Raw Data: {', '.join([col.capitalize() for col in columns_to_plot])} over the last 7 days")
-    st.write(
-        f"<span style='color: grey;'>Latest timestamp: {raw_data_date_range_selected_beehive['timestamp'].max().strftime('%H:%M %d-%m-%Y')}</span>", unsafe_allow_html=True)    
-    fig = px.line(raw_data_date_range_selected_beehive[(raw_data_date_range_selected_beehive['timestamp'] >= end_date_input - timedelta(days=7))
-                                                       & (raw_data_date_range_selected_beehive['timestamp'] <= end_date_input + timedelta(days=7))].sort_values(by='timestamp'), x='timestamp',
-                  y=columns_to_plot, line_shape='spline', color_discrete_sequence=['green', 'red', 'blue'])
 
-    # Add intervals from rapid_weight_data_selected
-    for _, row in rapid_weight_data_selected.iterrows():
-        fill_color = "green" if row['weight_diff'] > 0 else "red"
-        fig.add_vrect(
-            x0=row['created_at'], x1=row['end_date'],
-            fillcolor=fill_color, opacity=0.3, line_width=3, line_color=fill_color,
+    # Anchor the 7-day view on the latest EXISTING data point for this beehive,
+    # instead of the (possibly future/empty) sidebar end date.
+    latest_existing_timestamp = raw_data_date_range_selected_beehive['timestamp'].max()
+
+    if pd.isna(latest_existing_timestamp):
+        st.warning("No data available for the selected beehive in this date range.")
+    else:
+        earliest_existing_date = raw_data_date_range_selected_beehive['timestamp'].min().date()
+        latest_existing_date = latest_existing_timestamp.date()
+        default_raw_data_start_date = max(
+            earliest_existing_date, latest_existing_date - timedelta(days=6))
+
+        stored_raw_data_start_date = st.session_state.raw_data_start_date
+        if stored_raw_data_start_date is None or not (
+                earliest_existing_date <= stored_raw_data_start_date <= latest_existing_date):
+            stored_raw_data_start_date = default_raw_data_start_date
+
+        raw_data_start_date = st.date_input(
+            "Show 7 days starting from",
+            value=stored_raw_data_start_date,
+            min_value=earliest_existing_date,
+            max_value=latest_existing_date,
+            format="DD.MM.YYYY"
         )
-    st.plotly_chart(fig)
+        st.session_state.raw_data_start_date = raw_data_start_date
+
+        raw_data_window_start = pd.to_datetime(raw_data_start_date).tz_localize('UTC')
+        raw_data_window_end = raw_data_window_start + timedelta(days=7)
+
+        st.write(
+            f"#### Raw Data: {', '.join([col.capitalize() for col in columns_to_plot])} - 7 days from {raw_data_start_date.strftime('%d.%m.%Y')}")
+        st.write(
+            f"<span style='color: grey;'>Latest timestamp: {latest_existing_timestamp.strftime('%H:%M %d-%m-%Y')}</span>", unsafe_allow_html=True)
+
+        raw_data_7d_view = raw_data_date_range_selected_beehive[
+            (raw_data_date_range_selected_beehive['timestamp'] >= raw_data_window_start) &
+            (raw_data_date_range_selected_beehive['timestamp'] < raw_data_window_end)
+        ].sort_values(by='timestamp')
+
+        fig = px.line(raw_data_7d_view, x='timestamp',
+                      y=columns_to_plot, line_shape='spline', color_discrete_sequence=['green', 'red', 'blue'])
+
+        # Add intervals from rapid_weight_data_selected
+        for _, row in rapid_weight_data_selected.iterrows():
+            fill_color = "green" if row['weight_diff'] > 0 else "red"
+            fig.add_vrect(
+                x0=row['created_at'], x1=row['end_date'],
+                fillcolor=fill_color, opacity=0.3, line_width=3, line_color=fill_color,
+            )
+        st.plotly_chart(fig)
+
     events_df = load_events(start_date_input, end_date_input, selected_beehive_id=st.session_state.selected_beehive_id)
     if events_df.empty:
       pass
@@ -153,7 +191,7 @@ with tab1:
             calculate_and_display_rapid_weight_changes(
             rapid_weight_data, end_date_input, col2)
         
-        aframe(events_df[['event_date', 'event_type',
+        st.dataframe(events_df[['event_date', 'event_type',
                                 'event_description', 'uploaded_image']].sort_values(by='event_date', ascending=False))
         st.dataframe(rapid_weight_data_selected)
         # Adjust start and end date to include the last hour of the day (23:59)

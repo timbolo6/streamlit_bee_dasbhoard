@@ -1,0 +1,2501 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="BeeWise - Dein digitales Bienenjournal fuer Hobby- und Nebenerwerbsimker:innen." />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#2b8a57" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%9D%3C/text%3E%3C/svg%3E" />
+  <title>BeeWise - Dein digitales Bienenjournal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f6f8f3;
+      --panel: #ffffff;
+      --panel-soft: #f9fbf5;
+      --text: #1f2a20;
+      --muted: #5a6659;
+      --line: #dce5d6;
+      --green: #2b8a57;
+      --green-soft: #e8f8ef;
+      --amber: #c28a18;
+      --amber-soft: #fff6de;
+      --red: #b4403f;
+      --red-soft: #ffeceb;
+      --accent: #1f6a46;
+      --shadow: 0 12px 28px rgba(42, 62, 45, 0.12);
+      --radius-xl: 22px;
+      --radius-lg: 16px;
+      --radius-md: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Manrope", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 14%, rgba(47, 167, 88, 0.12), transparent 35%),
+        radial-gradient(circle at 88% 4%, rgba(230, 196, 108, 0.17), transparent 26%),
+        var(--bg);
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .app {
+      max-width: 1220px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 18px;
+    }
+
+    .sidebar {
+      background: linear-gradient(170deg, #f2f7ef 0%, #ebf5e6 100%);
+      border: 1px solid #d3e1cc;
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      display: grid;
+      align-content: start;
+      gap: 18px;
+      min-height: calc(100vh - 48px);
+      position: sticky;
+      top: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #d6e6cf;
+    }
+
+    .logo {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      background: linear-gradient(130deg, #ffca37, #4b9c5c);
+      display: grid;
+      place-items: center;
+      color: #11301c;
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+
+    .brand h1 {
+      font-family: "Fraunces", serif;
+      font-size: 1.15rem;
+      line-height: 1.05;
+    }
+
+    .brand p {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .nav {
+      display: grid;
+      gap: 8px;
+    }
+
+    .nav a {
+      text-decoration: none;
+      color: #2f402f;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.94rem;
+      border: 1px solid transparent;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .nav a.active {
+      background: #ffffff;
+      border-color: #d4e0cf;
+      color: #14331f;
+    }
+
+    .nav a:hover {
+      background: #f6fbf2;
+      border-color: #d7e5d1;
+    }
+
+    .sidebar-box {
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid #d8e4d3;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .sidebar-box h3 {
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .sidebar-box p {
+      font-size: 0.9rem;
+      color: #2f4232;
+    }
+
+    .main {
+      display: grid;
+      gap: 16px;
+      align-content: start;
+    }
+
+    .view {
+      display: grid;
+      gap: 16px;
+      align-content: start;
+    }
+
+    .view.hidden {
+      display: none;
+    }
+
+    .hero {
+      background: linear-gradient(125deg, #ffffff 0%, #fbfcf9 45%, #f2f7eb 100%);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      border: 2px dashed rgba(43, 138, 87, 0.3);
+      right: -70px;
+      top: -80px;
+    }
+
+    .eyebrow {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 700;
+      color: #4f6b56;
+      margin-bottom: 8px;
+    }
+
+    .hero h2 {
+      font-family: "Fraunces", serif;
+      font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+      line-height: 1.08;
+      margin-bottom: 8px;
+      max-width: 22ch;
+    }
+
+    .hero p {
+      color: var(--muted);
+      max-width: 70ch;
+    }
+
+    .alert-strip {
+      background: linear-gradient(130deg, #fff0ef, #ffe8e7);
+      border: 1px solid #efc2bf;
+      border-left: 7px solid var(--red);
+      border-radius: var(--radius-lg);
+      padding: 12px 14px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .alert-badge {
+      background: var(--red);
+      color: #fff;
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .alert-strip strong {
+      display: block;
+      line-height: 1.2;
+      margin-bottom: 2px;
+    }
+
+    .alert-strip span {
+      color: #743937;
+      font-size: 0.92rem;
+    }
+
+    .button {
+      border: 1px solid #e5aaa5;
+      background: #fff;
+      color: #7a2f2d;
+      font-weight: 700;
+      border-radius: 10px;
+      padding: 8px 11px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr 1fr 1fr;
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      box-shadow: 0 8px 20px rgba(48, 69, 52, 0.08);
+    }
+
+    .card h3 {
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 9px;
+    }
+
+    .stat {
+      font-size: 2.2rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      border: 1px solid transparent;
+    }
+
+    .chip.green {
+      background: var(--green-soft);
+      color: #0e5f35;
+      border-color: #bbe4cc;
+    }
+
+    .chip.amber {
+      background: var(--amber-soft);
+      color: #7a5a0f;
+      border-color: #f0dcab;
+    }
+
+    .chip.red {
+      background: var(--red-soft);
+      color: #7f2f2e;
+      border-color: #f4c2c0;
+    }
+
+    .donut-wrap {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 12px;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .donut {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: conic-gradient(
+        #2b8a57 0deg 225deg,
+        #c28a18 225deg 315deg,
+        #b4403f 315deg 360deg
+      );
+      position: relative;
+      display: grid;
+      place-items: center;
+    }
+
+    .donut::after {
+      content: "";
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: inset 0 0 0 1px #d9e2d5;
+    }
+
+    .legend {
+      display: grid;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: #304132;
+    }
+
+    .legend li {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex: 0 0 10px;
+    }
+
+    .dot.green { background: #2b8a57; }
+    .dot.amber { background: #c28a18; }
+    .dot.red { background: #b4403f; }
+
+    .logs {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      box-shadow: 0 8px 20px rgba(48, 69, 52, 0.08);
+    }
+
+    .logs-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      gap: 10px;
+    }
+
+    .logs h3 {
+      font-size: 1.05rem;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid #e1e9dd;
+      border-radius: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 620px;
+      background: #fff;
+    }
+
+    thead th {
+      text-align: left;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #566356;
+      background: #f6faf2;
+      border-bottom: 1px solid #dfe8da;
+      padding: 11px 12px;
+      font-weight: 700;
+    }
+
+    tbody td {
+      padding: 12px;
+      border-bottom: 1px solid #edf2ea;
+      font-size: 0.93rem;
+      color: #2a372b;
+      vertical-align: top;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .event-tag {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      background: #eef5ea;
+      color: #305436;
+      border: 1px solid #d0e0ca;
+    }
+
+    .hive-layout {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 14px;
+    }
+
+    .mini-map {
+      position: relative;
+      border-radius: 14px;
+      border: 1px solid #d8e4d3;
+      background:
+        linear-gradient(0deg, rgba(138, 180, 110, 0.16) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(138, 180, 110, 0.16) 1px, transparent 1px),
+        linear-gradient(125deg, #f4f8ef, #edf5e6);
+      background-size: 28px 28px, 28px 28px, auto;
+      min-height: 210px;
+      overflow: hidden;
+    }
+
+    .mini-map::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 20% 78%, rgba(46, 134, 84, 0.23), transparent 36%);
+    }
+
+    .map-pin {
+      position: absolute;
+      left: 62%;
+      top: 44%;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #c5332d;
+      border: 2px solid #fff;
+      box-shadow: 0 0 0 8px rgba(197, 51, 45, 0.16);
+    }
+
+    .map-label {
+      position: absolute;
+      left: calc(62% + 14px);
+      top: calc(44% - 8px);
+      background: #fff;
+      border: 1px solid #d5e0d0;
+      border-radius: 9px;
+      padding: 6px 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #27402e;
+      box-shadow: 0 5px 12px rgba(38, 64, 45, 0.12);
+    }
+
+    .detail-kpis {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .kpi-mini {
+      background: #fff;
+      border: 1px solid #dce6d8;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .kpi-mini h4 {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #5a6659;
+      margin-bottom: 6px;
+    }
+
+    .kpi-mini p {
+      font-size: 1.36rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .status-box {
+      margin-top: 12px;
+      background: linear-gradient(125deg, #eef8eb, #f6fbef);
+      border: 1px solid #d4e4cc;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .status-box h4 {
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #4c604e;
+      margin-bottom: 5px;
+    }
+
+    .status-box p {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #21402b;
+    }
+
+    .camera-panel {
+      margin-top: 14px;
+      background: #fff;
+      border: 1px solid #dce6d8;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .camera-panel h4 {
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #4c604e;
+      margin-bottom: 9px;
+    }
+
+    .flow-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .flow-item {
+      border: 1px solid #dfe8da;
+      border-radius: 10px;
+      padding: 10px;
+      background: #f8fcf6;
+    }
+
+    .flow-item strong {
+      display: block;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #5a6659;
+      margin-bottom: 6px;
+    }
+
+    .flow-item p {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #1c3523;
+    }
+
+    .pollen-result {
+      margin-top: 10px;
+      border: 1px solid #d3e3ca;
+      border-radius: 10px;
+      background: #f2f9ed;
+      padding: 10px;
+      color: #24432c;
+      font-size: 0.92rem;
+    }
+
+    .is-hidden {
+      display: none;
+    }
+
+    .chat-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(18, 30, 21, 0.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+      z-index: 30;
+    }
+
+    .chat-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .chat-drawer {
+      position: fixed;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: min(430px, 92vw);
+      background: #ffffff;
+      border-left: 1px solid #d9e4d4;
+      box-shadow: -18px 0 30px rgba(20, 39, 29, 0.18);
+      transform: translateX(102%);
+      transition: transform 0.28s ease;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      z-index: 31;
+    }
+
+    .chat-drawer.open {
+      transform: translateX(0);
+    }
+
+    .chat-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid #e3ebe0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .chat-header h3 {
+      font-size: 1.02rem;
+    }
+
+    .chat-messages {
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+      align-content: start;
+      overflow-y: auto;
+      background: #f9fcf7;
+    }
+
+    .msg {
+      border-radius: 12px;
+      padding: 9px 11px;
+      max-width: 90%;
+      border: 1px solid #d9e6d3;
+      background: #fff;
+      font-size: 0.92rem;
+      color: #2a3b2d;
+    }
+
+    .msg.user {
+      justify-self: end;
+      background: #e9f7ee;
+      border-color: #bfe3cc;
+    }
+
+    .msg.bot {
+      justify-self: start;
+      background: #fff;
+    }
+
+    .chat-input {
+      border-top: 1px solid #e3ebe0;
+      padding: 10px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      background: #fff;
+    }
+
+    .chat-input input {
+      border: 1px solid #d5e3cf;
+      border-radius: 10px;
+      padding: 10px;
+      font: inherit;
+      color: #243627;
+      background: #fcfefb;
+    }
+
+    .chat-input button,
+    .ghost-btn {
+      border: 1px solid #c8d8c1;
+      border-radius: 10px;
+      padding: 8px 10px;
+      background: #f3f9ef;
+      color: #19472a;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    .task-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .task-item {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 12px;
+      background: #fff;
+      border: 1px solid #e1e9dd;
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    .task-item strong {
+      display: block;
+      font-size: 0.95rem;
+    }
+
+    .task-item .task-note {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .task-check {
+      width: 18px;
+      height: 18px;
+      border-radius: 6px;
+      border: 2px solid #b9cdb2;
+      display: inline-block;
+    }
+
+    .colony-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+    }
+
+    .colony-card {
+      appearance: none;
+      -webkit-appearance: none;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      box-shadow: 0 8px 20px rgba(48, 69, 52, 0.08);
+      cursor: pointer;
+      display: grid;
+      gap: 8px;
+      text-align: left;
+      font: inherit;
+      color: inherit;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    }
+
+    .colony-card:hover,
+    .colony-card:focus-visible {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 26px rgba(48, 69, 52, 0.16);
+      border-color: #c7dcc0;
+      outline: none;
+    }
+
+    .colony-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .colony-card-head h3 {
+      font-size: 1.05rem;
+    }
+
+    .status-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex: 0 0 12px;
+    }
+
+    .status-dot.green { background: #2b8a57; }
+    .status-dot.amber { background: #c28a18; }
+    .status-dot.red { background: #b4403f; }
+
+    .colony-meta {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .colony-metrics {
+      display: flex;
+      gap: 10px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #233524;
+    }
+
+    .colony-open {
+      justify-self: start;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .filter-chip {
+      border: 1px solid #d5e3cf;
+      background: #f7fbf3;
+      color: #2f4232;
+      border-radius: 999px;
+      padding: 5px 12px;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .filter-chip.is-active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .app-footer-note {
+      max-width: 1220px;
+      margin: 10px auto 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      max-width: 1220px;
+      margin: 0 auto 18px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .topbar-search {
+      flex: 1;
+      max-width: 360px;
+    }
+
+    .topbar-search input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 9px 12px;
+      font: inherit;
+      color: var(--text);
+      background: var(--panel-soft);
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      position: relative;
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--panel-soft);
+      cursor: pointer;
+      font-size: 1rem;
+      display: grid;
+      place-items: center;
+    }
+
+    .icon-btn:hover {
+      border-color: #c7dcc0;
+    }
+
+    .notif-wrap {
+      position: relative;
+    }
+
+    .notif-dot {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--red);
+      border: 2px solid var(--panel);
+    }
+
+    .notif-dropdown {
+      position: absolute;
+      right: 0;
+      top: calc(100% + 8px);
+      width: 280px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 12px;
+      z-index: 25;
+    }
+
+    .notif-dropdown.hidden {
+      display: none;
+    }
+
+    .notif-dropdown strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.88rem;
+    }
+
+    .notif-dropdown ul {
+      list-style: none;
+      display: grid;
+      gap: 8px;
+    }
+
+    .notif-dropdown li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: var(--text);
+    }
+
+    .view-toggle {
+      display: inline-flex;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .view-toggle-btn {
+      padding: 6px 14px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--text);
+    }
+
+    .view-toggle-btn.is-active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .apiary-map {
+      position: relative;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(0deg, rgba(138, 180, 110, 0.16) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(138, 180, 110, 0.16) 1px, transparent 1px),
+        linear-gradient(125deg, #f4f8ef, #edf5e6);
+      background-size: 28px 28px, 28px 28px, auto;
+      min-height: 320px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+
+    .apiary-map.hidden {
+      display: none;
+    }
+
+    .colony-grid.hidden {
+      display: none;
+    }
+
+    .apiary-pin {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      cursor: pointer;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.08);
+      padding: 0;
+    }
+
+    .apiary-pin.green { background: #2b8a57; }
+    .apiary-pin.amber { background: #c28a18; }
+    .apiary-pin.red { background: #b4403f; }
+
+    .apiary-pin-label {
+      position: absolute;
+      transform: translate(-50%, -145%);
+      font-size: 0.72rem;
+      font-weight: 700;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 2px 6px;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .sparkline {
+      width: 100%;
+      height: 36px;
+      margin-top: 6px;
+      display: block;
+    }
+
+    .sparkline polyline {
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .toast-stack {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      display: grid;
+      gap: 8px;
+      z-index: 60;
+    }
+
+    .toast {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      padding: 10px 14px;
+      font-size: 0.88rem;
+      color: var(--text);
+      animation: toast-in 0.25s ease;
+      max-width: 280px;
+    }
+
+    @keyframes toast-in {
+      from { transform: translateY(8px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .task-item.task-done strong {
+      text-decoration: line-through;
+      color: var(--muted);
+    }
+
+    .task-check {
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background: transparent;
+      padding: 0;
+      margin: 0;
+    }
+
+    .task-check.is-done {
+      background: var(--green);
+      border-color: var(--green);
+      position: relative;
+    }
+
+    .task-check.is-done::after {
+      content: "\2713";
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 12px;
+    }
+
+    html[data-theme="dark"] {
+      --bg: #0f2118;
+      --panel: #15301f;
+      --panel-soft: #112719;
+      --text: #eaf3ec;
+      --muted: #9fb6a6;
+      --line: #234a2f;
+      --shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+    }
+
+    html[data-theme="dark"] body {
+      background:
+        radial-gradient(circle at 12% 14%, rgba(47, 167, 88, 0.18), transparent 35%),
+        radial-gradient(circle at 88% 4%, rgba(230, 196, 108, 0.08), transparent 26%),
+        var(--bg);
+    }
+
+    html[data-theme="dark"] .sidebar {
+      background: linear-gradient(170deg, #123321 0%, #0e2216 100%);
+      border-color: #204028;
+    }
+
+    html[data-theme="dark"] .hero {
+      background: linear-gradient(125deg, #15301f 0%, #123123 45%, #0f2a1c 100%);
+    }
+
+    html[data-theme="dark"] .kpi-mini,
+    html[data-theme="dark"] .camera-panel,
+    html[data-theme="dark"] .flow-item,
+    html[data-theme="dark"] .task-item,
+    html[data-theme="dark"] table,
+    html[data-theme="dark"] .chat-drawer,
+    html[data-theme="dark"] .msg.bot,
+    html[data-theme="dark"] .notif-dropdown {
+      background: #123222;
+      border-color: #234b2f;
+      color: var(--text);
+    }
+
+    html[data-theme="dark"] thead th {
+      background: #0f2a1c;
+      border-color: #234b2f;
+      color: #b9d0c0;
+    }
+
+    html[data-theme="dark"] tbody td {
+      border-color: #1c3d27;
+      color: #dcece2;
+    }
+
+    html[data-theme="dark"] .status-box {
+      background: linear-gradient(125deg, #133523, #102a1b);
+      border-color: #234b2f;
+    }
+
+    html[data-theme="dark"] .chat-messages {
+      background: #0f2618;
+    }
+
+    html[data-theme="dark"] .msg.user {
+      background: #1d4c2d;
+      border-color: #2c6a3d;
+      color: #eaf7ee;
+    }
+
+    html[data-theme="dark"] .mini-map,
+    html[data-theme="dark"] .apiary-map {
+      background:
+        linear-gradient(0deg, rgba(138, 180, 110, 0.12) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(138, 180, 110, 0.12) 1px, transparent 1px),
+        linear-gradient(125deg, #12291b, #0f2216);
+      border-color: #234b2f;
+    }
+
+    html[data-theme="dark"] .sidebar-box {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: #234b2f;
+    }
+
+    html[data-theme="dark"] .filter-chip {
+      background: #14311f;
+      border-color: #234b2f;
+      color: #cfe4d5;
+    }
+
+    html[data-theme="dark"] .topbar-search input,
+    html[data-theme="dark"] .icon-btn {
+      background: #123222;
+      border-color: #234b2f;
+      color: #eaf3ec;
+    }
+
+    html[data-theme="dark"] .apiary-pin-label {
+      background: #123222;
+      border-color: #234b2f;
+      color: #eaf3ec;
+    }
+
+    .hw-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 14px;
+    }
+
+    .hw-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      box-shadow: 0 8px 20px rgba(48, 69, 52, 0.08);
+      display: grid;
+      gap: 8px;
+      justify-items: center;
+      text-align: center;
+    }
+
+    .hw-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--green-soft);
+      display: grid;
+      place-items: center;
+      font-size: 1.5rem;
+    }
+
+    .hw-card h4 {
+      font-size: 0.96rem;
+    }
+
+    .hw-card p {
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+
+    .flow-diagram {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 8px 0 4px;
+    }
+
+    .flow-node {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px 14px;
+      text-align: center;
+      min-width: 140px;
+      display: grid;
+      gap: 4px;
+      box-shadow: 0 6px 16px rgba(48, 69, 52, 0.06);
+    }
+
+    .flow-node .flow-icon {
+      font-size: 1.4rem;
+    }
+
+    .flow-node strong {
+      font-size: 0.88rem;
+    }
+
+    .flow-node span {
+      font-size: 0.76rem;
+      color: var(--muted);
+    }
+
+    .flow-arrow {
+      font-size: 1.3rem;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    html[data-theme="dark"] .hw-card,
+    html[data-theme="dark"] .flow-node {
+      background: #123222;
+      border-color: #234b2f;
+    }
+
+    @media (max-width: 1080px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+        min-height: auto;
+      }
+
+      .kpi-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .hive-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .detail-kpis {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 700px) {
+      body {
+        padding: 12px;
+      }
+
+      .hero {
+        padding: 18px;
+      }
+
+      .kpi-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .alert-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .donut-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .detail-kpis {
+        grid-template-columns: 1fr;
+      }
+
+      .flow-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .colony-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .task-item {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media print {
+      .topbar,
+      .sidebar,
+      .chat-drawer,
+      .chat-backdrop,
+      .toast-stack,
+      .colony-open,
+      .view-toggle,
+      #pollen-detect-btn,
+      #detail-agent-btn,
+      #open-agent-btn {
+        display: none !important;
+      }
+
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      body {
+        background: #fff;
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-search">
+      <input type="search" id="global-search" placeholder="Volk suchen... ( / )" aria-label="Volk suchen" />
+    </div>
+    <div class="topbar-actions">
+      <button class="icon-btn" id="print-btn" type="button" title="Bericht drucken">🖨️</button>
+      <div class="notif-wrap">
+        <button class="icon-btn" id="notif-btn" type="button" title="Benachrichtigungen">
+          🔔
+          <span class="notif-dot" id="notif-dot"></span>
+        </button>
+        <div class="notif-dropdown hidden" id="notif-dropdown">
+          <strong>Benachrichtigungen</strong>
+          <ul>
+            <li><span class="chip red">kritisch</span> Volk 3: Schwarmgefahr</li>
+            <li><span class="chip amber">Hinweis</span> Volk 4: erhoehter Varroa-Befall</li>
+          </ul>
+        </div>
+      </div>
+      <button class="icon-btn" id="theme-toggle" type="button" title="Dark Mode umschalten">🌙</button>
+    </div>
+  </header>
+
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">BW</div>
+        <div>
+          <h1>BeeWise</h1>
+          <p>Dein digitales Bienenjournal</p>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="Hauptnavigation">
+        <a class="active" href="#" data-view="dashboard-view">Startseite</a>
+        <a href="#" data-view="colonies-view">Meine Völker</a>
+        <a href="#" data-view="hive-view">Volk im Detail</a>
+        <a href="#" id="bee-agent-tab">Bee-Agent</a>
+        <a href="#" data-view="harvest-view">Ernte &amp; Verkauf</a>
+        <a href="#" data-view="journal-view">Journal</a>
+        <a href="#" data-view="hardware-view">Technik</a>
+      </nav>
+
+      <div class="sidebar-box">
+        <h3>Hallo Tim 👋</h3>
+        <p>Zuletzt angemeldet: gestern · 8 Völker im Blick.</p>
+      </div>
+
+      <div class="sidebar-box">
+        <h3>Standort</h3>
+        <p>Hamburg Bergedorf - Südfeld &amp; Nordstand</p>
+      </div>
+
+      <div class="sidebar-box">
+        <h3>Heute, 31.07.2026</h3>
+        <p>22 °C, leichter Wind - guter Tag fuer eine Kontrolle. Letzter Sensor-Sync: 08:20 Uhr.</p>
+      </div>
+
+      <div class="sidebar-box">
+        <h3>Aktive Alerts</h3>
+        <p>1 kritisch (Schwarmgefahr), 1 Hinweis</p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div id="dashboard-view" class="view">
+        <section class="hero">
+          <p class="eyebrow">Startseite</p>
+          <h2>Schönen guten Morgen, Tim!</h2>
+          <p>Hier siehst du auf einen Blick, wie es deinen 8 Völkern geht, was als Nächstes ansteht und wo du heute genauer hinschauen solltest.</p>
+        </section>
+
+        <section class="alert-strip" role="status" aria-live="polite">
+          <span class="alert-badge">Alert</span>
+          <div>
+            <strong>Grund: Schwarmgefahr</strong>
+            <span>Volk 3 zeigt Muster mit schneller Gewichtsabnahme und steigender Aktivität. Kontrolle innerhalb von 24h empfohlen.</span>
+          </div>
+          <button class="button" type="button" id="open-agent-btn">Zur Empfehlung</button>
+        </section>
+
+        <section class="kpi-grid" aria-label="KPI Uebersicht">
+          <article class="card">
+            <h3>Gesamtstatus Völker</h3>
+            <p class="stat">8</p>
+            <div class="donut-wrap">
+              <div class="donut" aria-hidden="true"></div>
+              <ul class="legend">
+                <li><span class="dot green"></span> 5 Happy</li>
+                <li><span class="dot amber"></span> 2 Medium</li>
+                <li><span class="dot red"></span> 1 Kritisch</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3>Happy</h3>
+            <p class="stat">5</p>
+            <span class="chip green">stabil</span>
+          </article>
+
+          <article class="card">
+            <h3>Medium</h3>
+            <p class="stat">2</p>
+            <span class="chip amber">beobachten</span>
+          </article>
+
+          <article class="card">
+            <h3>Kritisch</h3>
+            <p class="stat">1</p>
+            <span class="chip red">sofort prüfen</span>
+          </article>
+        </section>
+
+        <section class="logs" aria-label="Naechste Aufgaben">
+          <div class="logs-head">
+            <h3>Nächste Aufgaben</h3>
+            <span class="chip amber">3 offen</span>
+          </div>
+          <ul class="task-list" id="task-list">
+            <li class="task-item" data-task="1">
+              <button class="task-check" type="button" aria-label="Aufgabe erledigt markieren"></button>
+              <div>
+                <strong>Volk 3: Weiselzellen kontrollieren</strong>
+                <span class="task-note">Fällig heute - wegen Schwarmalert</span>
+              </div>
+              <span class="chip red">dringend</span>
+            </li>
+            <li class="task-item" data-task="2">
+              <button class="task-check" type="button" aria-label="Aufgabe erledigt markieren"></button>
+              <div>
+                <strong>Volk 5: Honigraum erneut prüfen</strong>
+                <span class="task-note">Nach Zargenerweiterung - in 2 Tagen fällig</span>
+              </div>
+              <span class="chip amber">bald</span>
+            </li>
+            <li class="task-item" data-task="3">
+              <button class="task-check" type="button" aria-label="Aufgabe erledigt markieren"></button>
+              <div>
+                <strong>Honiggläser nachbestellen</strong>
+                <span class="task-note">Vorrat nach Ernte aus Volk 2 wird knapp</span>
+              </div>
+              <span class="chip green">geplant</span>
+            </li>
+          </ul>
+        </section>
+
+        <section class="logs">
+          <div class="logs-head">
+            <h3>Uebersicht der letzten Logs</h3>
+            <span class="chip green">Heute: 3 Einträge</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Zeit</th>
+                  <th>Aktion</th>
+                  <th>Volk / Standort</th>
+                  <th>Notiz</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>31.07.2026 - 07:15</td>
+                  <td><span class="event-tag">Geerntet</span></td>
+                  <td>Volk 2 / Suedfeld</td>
+                  <td>Sommertracht geerntet, Honigraum entnommen.</td>
+                  <td><span class="chip green">erledigt</span></td>
+                </tr>
+                <tr>
+                  <td>30.07.2026 - 18:40</td>
+                  <td><span class="event-tag">Nach Königin gesucht</span></td>
+                  <td>Volk 3 / Nordstand</td>
+                  <td>Suche nach Königin vorbereitet, Weiselzellen geprueft.</td>
+                  <td><span class="chip amber">in Beobachtung</span></td>
+                </tr>
+                <tr>
+                  <td>30.07.2026 - 11:05</td>
+                  <td><span class="event-tag">Box erweitert</span></td>
+                  <td>Volk 5 / Nordstand</td>
+                  <td>Zweite Zarge aufgesetzt wegen Platzbedarf.</td>
+                  <td><span class="chip green">erledigt</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p style="margin-top: 10px;"><a class="colony-open" href="#" data-view="journal-view">Alle Logs im Journal ansehen -&gt;</a></p>
+        </section>
+      </div>
+
+      <div id="colonies-view" class="view hidden">
+        <section class="hero">
+          <p class="eyebrow">Meine Völker</p>
+          <h2>Alle 8 Völker im Überblick</h2>
+          <p>Klicke auf ein Volk, um Standort, Kernwerte und Verlaufsprotokoll im Detail zu sehen.</p>
+        </section>
+
+        <section class="card">
+          <div class="view-toggle" role="tablist" aria-label="Ansicht umschalten">
+            <button class="view-toggle-btn is-active" type="button" id="toggle-list-btn">Liste</button>
+            <button class="view-toggle-btn" type="button" id="toggle-map-btn">Karte</button>
+          </div>
+          <div class="apiary-map hidden" id="apiary-map" aria-label="Standortkarte aller Völker"></div>
+          <div class="colony-grid" id="colony-grid"></div>
+        </section>
+      </div>
+
+      <div id="hive-view" class="view hidden">
+        <section class="hero">
+          <p class="eyebrow">Volk im Detail</p>
+          <h2 id="hive-title">Einzelansicht: Volk 3 am Nordstand</h2>
+          <p id="hive-subtitle">Standort, aktuelle Kernwerte und Verlaufsprotokoll zur schnellen Bewertung des Gesundheitszustands.</p>
+        </section>
+
+        <p style="margin-top: -6px;"><a class="colony-open" href="#" data-view="colonies-view">&lt;- Zurück zu Meine Völker</a></p>
+
+        <section class="hive-layout">
+          <article class="card">
+            <h3>Standortkarte</h3>
+            <div class="mini-map" aria-label="Karte Standort" id="hive-map">
+              <span class="map-pin" id="hive-map-pin" aria-hidden="true"></span>
+              <span class="map-label" id="hive-map-label">Volk 3</span>
+            </div>
+            <p style="margin-top: 9px; color: #5a6659; font-size: 0.9rem;" id="hive-address">Kuddewörde, Nordstand - Feldweg 2, Parzelle B</p>
+          </article>
+
+          <article class="card">
+            <h3>KPIs</h3>
+            <div class="detail-kpis">
+              <div class="kpi-mini">
+                <h4>Gewicht</h4>
+                <p id="kpi-weight">44.5 kg</p>
+                <span class="chip amber" id="kpi-weight-chip">-0.8 kg / 24h</span>
+                <svg class="sparkline" id="spark-weight" viewBox="0 0 100 40" preserveAspectRatio="none"></svg>
+              </div>
+              <div class="kpi-mini">
+                <h4>Temperatur</h4>
+                <p id="kpi-temp">33.7 C</p>
+                <span class="chip green" id="kpi-temp-chip">stabil</span>
+                <svg class="sparkline" id="spark-temp" viewBox="0 0 100 40" preserveAspectRatio="none"></svg>
+              </div>
+              <div class="kpi-mini">
+                <h4>Feuchtigkeit</h4>
+                <p id="kpi-humidity">58 %</p>
+                <span class="chip green" id="kpi-humidity-chip">normal</span>
+                <svg class="sparkline" id="spark-humidity" viewBox="0 0 100 40" preserveAspectRatio="none"></svg>
+              </div>
+              <div class="kpi-mini">
+                <h4>Schwarmrisiko</h4>
+                <p id="kpi-swarm">Hoch</p>
+                <span class="chip red" id="kpi-swarm-chip">Alert aktiv</span>
+              </div>
+              <div class="kpi-mini">
+                <h4>Aktivitaetslevel</h4>
+                <p id="kpi-activity">Hoch</p>
+                <span class="chip amber" id="kpi-activity-chip">ueber Basislinie</span>
+              </div>
+              <div class="kpi-mini">
+                <h4>Status</h4>
+                <p id="kpi-status">Wachstum</p>
+                <span class="chip green" id="kpi-status-chip">Eintrag von Tracht</span>
+              </div>
+            </div>
+            <div class="status-box">
+              <h4>Empfehlung</h4>
+              <p id="hive-recommendation">Innerhalb 24h auf Weiselzellen pruefen und bei Bedarf Ablegerbildung vorbereiten.</p>
+            </div>
+
+            <div class="camera-panel" id="camera-panel">
+              <h4>Kamerazaehlung Flugloch</h4>
+              <div class="flow-grid">
+                <div class="flow-item">
+                  <strong>Eingehende Bienen (1h)</strong>
+                  <p id="camera-in">1,248</p>
+                </div>
+                <div class="flow-item">
+                  <strong>Ausgehende Bienen (1h)</strong>
+                  <p id="camera-out">1,301</p>
+                </div>
+              </div>
+              <button class="ghost-btn" type="button" id="pollen-detect-btn">Pollenart erkennen</button>
+              <div class="pollen-result is-hidden" id="pollen-result">
+                Kamera-Hinweis: Es wurden zwei Einfluege mit Raps-Pollen erkannt.
+              </div>
+            </div>
+            <p class="colony-meta" id="camera-missing-note" style="display: none; margin-top: 12px;">Für dieses Volk ist noch keine Kamera/Sensorbox verbaut - Werte basieren auf manueller Kontrolle.</p>
+          </article>
+        </section>
+
+        <section class="logs">
+          <div class="logs-head">
+            <h3 id="hive-log-title">Log-Uebersicht Volk 3</h3>
+            <button class="ghost-btn" type="button" id="detail-agent-btn">Bee-Agent fragen</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Zeit</th>
+                  <th>Event</th>
+                  <th>Beobachtung</th>
+                  <th>Massnahme</th>
+                </tr>
+              </thead>
+              <tbody id="hive-logs-body">
+                <tr>
+                  <td>31.07.2026 - 06:55</td>
+                  <td><span class="event-tag">Sensor Alert</span></td>
+                  <td>Gewicht sinkt, Aktivitaet steigt</td>
+                  <td>Schwarmcheck eingeplant</td>
+                </tr>
+                <tr>
+                  <td>30.07.2026 - 18:40</td>
+                  <td><span class="event-tag">Nach Königin gesucht</span></td>
+                  <td>Brutnest aktiv, mehrere Spielnaepfchen</td>
+                  <td>Kontrolle in 2 Tagen</td>
+                </tr>
+                <tr>
+                  <td>29.07.2026 - 11:20</td>
+                  <td><span class="event-tag">Box erweitert</span></td>
+                  <td>Starker Trachteintrag, Platz eng</td>
+                  <td>Zarge erweitert</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <div id="harvest-view" class="view hidden">
+        <section class="hero">
+          <p class="eyebrow">Ernte &amp; Verkauf</p>
+          <h2>Honigernte im Überblick</h2>
+          <p>Erntemengen, aktueller Lagerbestand und geplante Schleudertermine - als Grundlage fuer deine Verkaufsplanung.</p>
+        </section>
+
+        <section class="kpi-grid" aria-label="Ernte KPIs">
+          <article class="card">
+            <h3>Ernte 2026 gesamt</h3>
+            <p class="stat">58 kg</p>
+            <span class="chip green">3 Ernten dokumentiert</span>
+          </article>
+          <article class="card">
+            <h3>Gläser auf Lager</h3>
+            <p class="stat">64</p>
+            <span class="chip amber">Vorrat wird knapp</span>
+          </article>
+          <article class="card">
+            <h3>Nächste Schleuderung</h3>
+            <p class="stat">3.08.</p>
+            <span class="chip green">geplant</span>
+          </article>
+        </section>
+
+        <section class="logs">
+          <div class="logs-head">
+            <h3>Ernte-Log</h3>
+            <span class="chip green">Sommertracht</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Datum</th>
+                  <th>Volk</th>
+                  <th>Menge</th>
+                  <th>Sorte</th>
+                  <th>Notiz</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>31.07.2026</td>
+                  <td>Volk 2 / Südfeld</td>
+                  <td>21 kg</td>
+                  <td>Sommerblüte</td>
+                  <td>Honigraum vollständig entnommen.</td>
+                </tr>
+                <tr>
+                  <td>14.07.2026</td>
+                  <td>Volk 6 / Südfeld</td>
+                  <td>19 kg</td>
+                  <td>Lindenblüte</td>
+                  <td>Kristallisiert schnell, fein abgefüllt.</td>
+                </tr>
+                <tr>
+                  <td>02.06.2026</td>
+                  <td>Volk 1 / Südfeld</td>
+                  <td>18 kg</td>
+                  <td>Rapsblüte</td>
+                  <td>Schnellschleuderung wegen Kristallisation.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="colony-meta" style="margin-top: 10px;">Bestellungen laufen über die separate Honigbestellseite (PayPal-Integration).</p>
+        </section>
+      </div>
+
+      <div id="journal-view" class="view hidden">
+        <section class="hero">
+          <p class="eyebrow">Journal</p>
+          <h2>Alle Ereignisse im Überblick</h2>
+          <p>Jede Kontrolle, Ernte und Auffälligkeit an einem Ort - über alle 8 Völker hinweg.</p>
+        </section>
+
+        <section class="logs">
+          <div class="filter-row">
+            <span class="filter-chip is-active">Alle</span>
+            <span class="filter-chip">Geerntet</span>
+            <span class="filter-chip">Königin gesucht</span>
+            <span class="filter-chip">Box erweitert</span>
+            <span class="filter-chip">Alert</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Zeit</th>
+                  <th>Aktion</th>
+                  <th>Volk / Standort</th>
+                  <th>Notiz</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>31.07.2026 - 07:15</td>
+                  <td><span class="event-tag">Geerntet</span></td>
+                  <td>Volk 2 / Südfeld</td>
+                  <td>Sommertracht geerntet, Honigraum entnommen.</td>
+                  <td><span class="chip green">erledigt</span></td>
+                </tr>
+                <tr>
+                  <td>31.07.2026 - 06:55</td>
+                  <td><span class="event-tag">Sensor Alert</span></td>
+                  <td>Volk 3 / Nordstand</td>
+                  <td>Gewicht sinkt, Aktivitaet steigt - Schwarmgefahr.</td>
+                  <td><span class="chip red">kritisch</span></td>
+                </tr>
+                <tr>
+                  <td>30.07.2026 - 18:40</td>
+                  <td><span class="event-tag">Nach Königin gesucht</span></td>
+                  <td>Volk 3 / Nordstand</td>
+                  <td>Suche nach Königin vorbereitet, Weiselzellen geprueft.</td>
+                  <td><span class="chip amber">in Beobachtung</span></td>
+                </tr>
+                <tr>
+                  <td>30.07.2026 - 11:05</td>
+                  <td><span class="event-tag">Box erweitert</span></td>
+                  <td>Volk 5 / Nordstand</td>
+                  <td>Zweite Zarge aufgesetzt wegen Platzbedarf.</td>
+                  <td><span class="chip green">erledigt</span></td>
+                </tr>
+                <tr>
+                  <td>27.07.2026 - 09:10</td>
+                  <td><span class="event-tag">Kontrolle</span></td>
+                  <td>Volk 1 / Südfeld</td>
+                  <td>Brutnest geschlossen, genug Futter, keine Auffälligkeiten.</td>
+                  <td><span class="chip green">erledigt</span></td>
+                </tr>
+                <tr>
+                  <td>22.07.2026 - 16:20</td>
+                  <td><span class="event-tag">Varroa-Kontrolle</span></td>
+                  <td>Volk 4 / Nordstand</td>
+                  <td>Erhöhter Milbenbefall festgestellt.</td>
+                  <td><span class="chip amber">in Beobachtung</span></td>
+                </tr>
+                <tr>
+                  <td>14.07.2026 - 08:45</td>
+                  <td><span class="event-tag">Geerntet</span></td>
+                  <td>Volk 6 / Südfeld</td>
+                  <td>Lindenernte, 19 kg geschleudert.</td>
+                  <td><span class="chip green">erledigt</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <div id="hardware-view" class="view hidden">
+        <section class="hero">
+          <p class="eyebrow">Technik</p>
+          <h2>So ist die Sensorbox aufgebaut</h2>
+          <p>Vom Bienenstock bis ins Dashboard - Hardware, Übertragung und Speicherung in der Cloud in wenigen Schritten erklärt.</p>
+        </section>
+
+        <section class="card">
+          <h3>Hardware-Komponenten</h3>
+          <div class="hw-grid">
+            <article class="hw-card">
+              <span class="hw-icon" aria-hidden="true">⚖️</span>
+              <h4>Wiegezelle</h4>
+              <p>Misst das Gesamtgewicht der Beute auf ca. 10 g genau - Basis für Trachtverlauf und Schwarmerkennung.</p>
+            </article>
+            <article class="hw-card">
+              <span class="hw-icon" aria-hidden="true">🌡️</span>
+              <h4>Temperatursensor</h4>
+              <p>DS18B20 nahe dem Brutnest misst die Innentemperatur des Volkes.</p>
+            </article>
+            <article class="hw-card">
+              <span class="hw-icon" aria-hidden="true">💧</span>
+              <h4>Feuchtigkeitssensor</h4>
+              <p>Erfasst die Luftfeuchtigkeit im Beutenraum als Hinweis auf Belüftung und Gesundheit.</p>
+            </article>
+            <article class="hw-card">
+              <span class="hw-icon" aria-hidden="true">🧠</span>
+              <h4>Raspberry Pi Zero W</h4>
+              <p>Liest alle Sensoren aus, verarbeitet die Rohdaten und stellt die WLAN-Verbindung her.</p>
+            </article>
+            <article class="hw-card">
+              <span class="hw-icon" aria-hidden="true">🔋</span>
+              <h4>Akku &amp; Solarpanel</h4>
+              <p>Versorgt die Box autark im Feld, auch ohne Stromanschluss am Bienenstand.</p>
+            </article>
+            <article class="hw-card">
+              <span class="hw-icon" aria-hidden="true">📦</span>
+              <h4>Wetterfestes Gehäuse</h4>
+              <p>Schützt Elektronik und Verkabelung vor Feuchtigkeit, Hitze und Kälte.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>Vom Sensor ins Dashboard</h3>
+          <div class="flow-diagram">
+            <div class="flow-node">
+              <span class="flow-icon" aria-hidden="true">🐝</span>
+              <strong>Sensoren am Volk</strong>
+              <span>Gewicht, Temperatur, Feuchtigkeit</span>
+            </div>
+            <span class="flow-arrow" aria-hidden="true">&#8594;</span>
+            <div class="flow-node">
+              <span class="flow-icon" aria-hidden="true">🧠</span>
+              <strong>Raspberry Pi Zero</strong>
+              <span>Auslesen &amp; Vorverarbeitung</span>
+            </div>
+            <span class="flow-arrow" aria-hidden="true">&#8594;</span>
+            <div class="flow-node">
+              <span class="flow-icon" aria-hidden="true">📶</span>
+              <strong>WLAN-Upload</strong>
+              <span>Alle 10 Minuten</span>
+            </div>
+            <span class="flow-arrow" aria-hidden="true">&#8594;</span>
+            <div class="flow-node">
+              <span class="flow-icon" aria-hidden="true">☁️</span>
+              <strong>Cloud-Datenbank</strong>
+              <span>MongoDB Atlas</span>
+            </div>
+            <span class="flow-arrow" aria-hidden="true">&#8594;</span>
+            <div class="flow-node">
+              <span class="flow-icon" aria-hidden="true">📊</span>
+              <strong>BeeWise Dashboard</strong>
+              <span>Analyse, Trends &amp; Alerts</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="kpi-grid" aria-label="Technik KPIs">
+          <article class="card">
+            <h3>Messintervall</h3>
+            <p class="stat">10 Min</p>
+            <span class="chip green">aktiv</span>
+          </article>
+          <article class="card">
+            <h3>Letzte Übertragung</h3>
+            <p class="stat">vor 12 Min</p>
+            <span class="chip green">online</span>
+          </article>
+          <article class="card">
+            <h3>Speicherort</h3>
+            <p class="stat" style="font-size: 1.4rem;">MongoDB Atlas</p>
+            <span class="chip green">verschlüsselt</span>
+          </article>
+          <article class="card">
+            <h3>Akkulaufzeit</h3>
+            <p class="stat">~3 Wochen</p>
+            <span class="chip amber">je nach Solarertrag</span>
+          </article>
+        </section>
+
+        <section class="logs">
+          <div class="logs-head">
+            <h3>Pilotphase &amp; Ausblick</h3>
+            <button class="ghost-btn" type="button" id="hardware-agent-btn">Bee-Agent zur Technik fragen</button>
+          </div>
+          <p class="colony-meta">Aktuell sind Sensorboxen bei Volk 3 und Volk 5 im Einsatz (Pilotphase). Die Rohdaten werden alle 10 Minuten per WLAN an eine MongoDB-Atlas-Datenbank gesendet und im Dashboard nahezu in Echtzeit ausgewertet - inklusive automatischer Alerts bei Auffälligkeiten wie Schwarmgefahr. Naechster Ausbauschritt: Mikrofon- und Vibrationssensorik zur früheren Erkennung von Schwarmstimmung.</p>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <p class="app-footer-note">BeeWise Mock-up · Interaktiver Prototyp fuer Hobby- und Nebenerwerbsimker:innen · Stand 31.07.2026</p>
+
+  <div class="chat-backdrop" id="chat-backdrop"></div>
+  <aside class="chat-drawer" id="chat-drawer" aria-label="Bee-Agent Chat">
+    <div class="chat-header">
+      <h3>Bee-Agent</h3>
+      <button class="ghost-btn" type="button" id="close-chat-btn">Schliessen</button>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+      <div class="msg bot">Hallo, ich bin dein Bee-Agent. Frag mich, was du bei einem Schwarmalert tun solltest.</div>
+      <div class="msg user">Was sollte ich bei Schwarmalert tun?</div>
+      <div class="msg bot">Pruefe innerhalb von 24h auf Weiselzellen, sorge fuer Platz (zusaetzliche Zarge) und plane bei starker Schwarmstimmung eine Ablegerbildung. Parallel Futterlage und Flugaktivitaet dokumentieren.</div>
+    </div>
+    <form class="chat-input" id="chat-form">
+      <input id="chat-text" type="text" placeholder="Frage zum Schwarmalert eingeben..." />
+      <button type="submit">Senden</button>
+    </form>
+  </aside>
+
+  <div class="toast-stack" id="toast-stack" aria-live="polite"></div>
+
+  <script>
+    const navLinks = document.querySelectorAll('.nav a[data-view]');
+    const backLinks = document.querySelectorAll('a.colony-open[data-view]');
+    const views = document.querySelectorAll('.view');
+    const beeAgentTab = document.getElementById('bee-agent-tab');
+    const chatDrawer = document.getElementById('chat-drawer');
+    const chatBackdrop = document.getElementById('chat-backdrop');
+    const closeChatBtn = document.getElementById('close-chat-btn');
+    const openAgentBtn = document.getElementById('open-agent-btn');
+    const detailAgentBtn = document.getElementById('detail-agent-btn');
+    const hardwareAgentBtn = document.getElementById('hardware-agent-btn');
+    const pollenDetectBtn = document.getElementById('pollen-detect-btn');
+    const pollenResult = document.getElementById('pollen-result');
+    const chatForm = document.getElementById('chat-form');
+    const chatText = document.getElementById('chat-text');
+    const chatMessages = document.getElementById('chat-messages');
+    const colonyGrid = document.getElementById('colony-grid');
+    const apiaryMap = document.getElementById('apiary-map');
+    const toggleListBtn = document.getElementById('toggle-list-btn');
+    const toggleMapBtn = document.getElementById('toggle-map-btn');
+    const searchInput = document.getElementById('global-search');
+    const printBtn = document.getElementById('print-btn');
+    const notifBtn = document.getElementById('notif-btn');
+    const notifDropdown = document.getElementById('notif-dropdown');
+    const themeToggle = document.getElementById('theme-toggle');
+    const toastStack = document.getElementById('toast-stack');
+    const taskList = document.getElementById('task-list');
+
+    const hives = [
+      {
+        id: 'volk-1', label: 'Volk 1', location: 'Südfeld', colorClass: 'green', statusLabel: 'Happy',
+        hasSensor: false, lastCheck: '28.07.2026',
+        address: 'Kuddewörde, Südfeld - Streuobstwiese', pin: { left: '28%', top: '58%' },
+        weight: '44.1 kg', weightChip: 'green', weightChipText: '+0.3 kg / 24h',
+        temp: '32.8 C', tempChip: 'green', tempChipText: 'stabil',
+        humidity: '55 %', humidityChip: 'green', humidityChipText: 'normal',
+        swarm: 'Niedrig', swarmChip: 'green', activity: 'Normal', activityChip: 'green',
+        activityChipText: 'im Rahmen', swarmChipText: 'im Rahmen',
+        status: 'Stabil', statusChip: 'green', statusNote: 'Ruhiges Volk, gute Bruttätigkeit',
+        recommendation: 'Keine akuten Massnahmen. Naechste Routinekontrolle in 7 Tagen einplanen.',
+        camera: { in: '–', out: '–' },
+        logs: [
+          { time: '27.07.2026 - 09:10', event: 'Kontrolle', note: 'Brutnest geschlossen, genug Futter, keine Auffälligkeiten.', action: 'Nächste Kontrolle in 7 Tagen' },
+          { time: '02.06.2026 - 10:30', event: 'Geerntet', note: 'Rapsblüte geschleudert, 18 kg.', action: 'Honigraum wieder aufgesetzt' }
+        ]
+      },
+      {
+        id: 'volk-2', label: 'Volk 2', location: 'Südfeld', colorClass: 'green', statusLabel: 'Happy',
+        hasSensor: false, lastCheck: '31.07.2026',
+        address: 'Kuddewörde, Südfeld - Streuobstwiese', pin: { left: '34%', top: '50%' },
+        weight: '–', weightChip: 'green', weightChipText: 'Kein Sensor',
+        temp: '–', tempChip: 'green', tempChipText: 'Kein Sensor',
+        humidity: '–', humidityChip: 'green', humidityChipText: 'Kein Sensor',
+        swarm: 'Niedrig', swarmChip: 'green', activity: 'Normal', activityChip: 'green',
+        activityChipText: 'im Rahmen', swarmChipText: 'im Rahmen',
+        status: 'Stabil', statusChip: 'green', statusNote: 'Nach Ernte weiterhin ruhig',
+        recommendation: 'Nach der Ernte Futterkontrolle in 5 bis 7 Tagen durchfuehren.',
+        camera: { in: '–', out: '–' },
+        logs: [
+          { time: '31.07.2026 - 07:15', event: 'Geerntet', note: 'Sommertracht geerntet, Honigraum entnommen.', action: 'Futterkontrolle in 1 Woche' },
+          { time: '20.07.2026 - 09:00', event: 'Kontrolle', note: 'Volk stark, viel Brut.', action: 'Ernte fuer diese Woche geplant' }
+        ]
+      },
+      {
+        id: 'volk-3', label: 'Volk 3', location: 'Nordstand', colorClass: 'red', statusLabel: 'Kritisch',
+        hasSensor: true, lastCheck: '31.07.2026',
+        address: 'Kuddewörde, Nordstand - Feldweg 2, Parzelle B', pin: { left: '62%', top: '44%' },
+        weight: '44.5 kg', weightChip: 'amber', weightChipText: '-0.8 kg / 24h',
+        temp: '33.7 C', tempChip: 'green', tempChipText: 'stabil',
+        humidity: '58 %', humidityChip: 'green', humidityChipText: 'normal',
+        swarm: 'Hoch', swarmChip: 'red', activity: 'Hoch', activityChip: 'amber',
+        activityChipText: 'ueber Basislinie', swarmChipText: 'Alert aktiv',
+        status: 'Wachstum', statusChip: 'green', statusNote: 'Eintrag von Tracht',
+        recommendation: 'Innerhalb 24h auf Weiselzellen pruefen und bei Bedarf Ablegerbildung vorbereiten.',
+        camera: { in: '1,248', out: '1,301' },
+        series: {
+          weight: [46.8, 46.5, 46.1, 45.8, 45.4, 45.1, 44.5],
+          temp: [33.1, 33.2, 33.4, 33.5, 33.6, 33.6, 33.7],
+          humidity: [56, 56, 57, 57, 58, 58, 58]
+        },
+        logs: [
+          { time: '31.07.2026 - 06:55', event: 'Sensor Alert', note: 'Gewicht sinkt, Aktivitaet steigt', action: 'Schwarmcheck eingeplant' },
+          { time: '30.07.2026 - 18:40', event: 'Nach Königin gesucht', note: 'Brutnest aktiv, mehrere Spielnaepfchen', action: 'Kontrolle in 2 Tagen' },
+          { time: '29.07.2026 - 11:20', event: 'Box erweitert', note: 'Starker Trachteintrag, Platz eng', action: 'Zarge erweitert' }
+        ]
+      },
+      {
+        id: 'volk-4', label: 'Volk 4', location: 'Nordstand', colorClass: 'amber', statusLabel: 'Medium',
+        hasSensor: false, lastCheck: '22.07.2026',
+        address: 'Kuddewörde, Nordstand - Feldweg 2, Parzelle A', pin: { left: '70%', top: '60%' },
+        weight: '–', weightChip: 'amber', weightChipText: 'Kein Sensor',
+        temp: '–', tempChip: 'amber', tempChipText: 'Kein Sensor',
+        humidity: '–', humidityChip: 'amber', humidityChipText: 'Kein Sensor',
+        swarm: 'Mittel', swarmChip: 'amber', activity: 'Normal', activityChip: 'green',
+        activityChipText: 'im Rahmen', swarmChipText: 'beobachten',
+        status: 'Beobachten', statusChip: 'amber', statusNote: 'Erhoehter Varroa-Befall festgestellt',
+        recommendation: 'Varroa-Behandlung vorbereiten und in 5 Tagen erneut kontrollieren.',
+        camera: { in: '–', out: '–' },
+        logs: [
+          { time: '22.07.2026 - 16:20', event: 'Varroa-Kontrolle', note: 'Erhoehter Milbenbefall festgestellt.', action: 'Behandlung vorbereiten' },
+          { time: '10.07.2026 - 09:40', event: 'Kontrolle', note: 'Volk normal entwickelt.', action: 'Naechste Kontrolle in 2 Wochen' }
+        ]
+      },
+      {
+        id: 'volk-5', label: 'Volk 5', location: 'Nordstand', colorClass: 'green', statusLabel: 'Happy',
+        hasSensor: true, lastCheck: '30.07.2026',
+        address: 'Kuddewörde, Nordstand - Feldweg 2, Parzelle A', pin: { left: '76%', top: '38%' },
+        weight: '41.2 kg', weightChip: 'green', weightChipText: '+1.1 kg / 24h',
+        temp: '34.1 C', tempChip: 'green', tempChipText: 'stabil',
+        humidity: '55 %', humidityChip: 'green', humidityChipText: 'normal',
+        swarm: 'Niedrig', swarmChip: 'green', activity: 'Normal', activityChip: 'green',
+        activityChipText: 'im Rahmen', swarmChipText: 'im Rahmen',
+        status: 'Wachstum', statusChip: 'green', statusNote: 'Guter Trachteintrag nach Erweiterung',
+        recommendation: 'In 2 Tagen erneut auf Platzbedarf im Honigraum pruefen.',
+        camera: { in: '980', out: '1,015' },
+        series: {
+          weight: [36.9, 37.6, 38.4, 39.1, 39.8, 40.4, 41.2],
+          temp: [33.5, 33.6, 33.7, 33.8, 33.9, 34.0, 34.1],
+          humidity: [53, 53, 54, 54, 55, 55, 55]
+        },
+        logs: [
+          { time: '30.07.2026 - 11:05', event: 'Box erweitert', note: 'Zweite Zarge aufgesetzt wegen Platzbedarf.', action: 'Kontrolle in 2 Tagen' },
+          { time: '24.07.2026 - 09:15', event: 'Kontrolle', note: 'Sehr aktives Volk, Futter reicht.', action: 'Beobachten' }
+        ]
+      },
+      {
+        id: 'volk-6', label: 'Volk 6', location: 'Südfeld', colorClass: 'green', statusLabel: 'Happy',
+        hasSensor: false, lastCheck: '14.07.2026',
+        address: 'Kuddewörde, Südfeld - Streuobstwiese', pin: { left: '22%', top: '40%' },
+        weight: '–', weightChip: 'green', weightChipText: 'Kein Sensor',
+        temp: '–', tempChip: 'green', tempChipText: 'Kein Sensor',
+        humidity: '–', humidityChip: 'green', humidityChipText: 'Kein Sensor',
+        swarm: 'Niedrig', swarmChip: 'green', activity: 'Normal', activityChip: 'green',
+        activityChipText: 'im Rahmen', swarmChipText: 'im Rahmen',
+        status: 'Stabil', statusChip: 'green', statusNote: 'Nach Ernte weiterhin kraeftig',
+        recommendation: 'Naechste Routinekontrolle in 10 Tagen.',
+        camera: { in: '–', out: '–' },
+        logs: [
+          { time: '14.07.2026 - 08:45', event: 'Geerntet', note: 'Lindenernte, 19 kg geschleudert.', action: 'Honigraum wieder aufgesetzt' }
+        ]
+      },
+      {
+        id: 'volk-7', label: 'Volk 7', location: 'Nordstand', colorClass: 'amber', statusLabel: 'Medium',
+        hasSensor: false, lastCheck: '19.07.2026',
+        address: 'Kuddewörde, Nordstand - Feldweg 2, Parzelle B', pin: { left: '58%', top: '66%' },
+        weight: '–', weightChip: 'amber', weightChipText: 'Kein Sensor',
+        temp: '–', tempChip: 'amber', tempChipText: 'Kein Sensor',
+        humidity: '–', humidityChip: 'amber', humidityChipText: 'Kein Sensor',
+        swarm: 'Mittel', swarmChip: 'amber', activity: 'Niedrig', activityChip: 'amber',
+        activityChipText: 'unter Basislinie', swarmChipText: 'beobachten',
+        status: 'Beobachten', statusChip: 'amber', statusNote: 'Weniger Flugaktivitaet als sonst',
+        recommendation: 'Bei naechster Kontrolle gezielt auf Koeniginnenaktivitaet pruefen.',
+        camera: { in: '–', out: '–' },
+        logs: [
+          { time: '19.07.2026 - 17:05', event: 'Kontrolle', note: 'Wenig Flugbetrieb, Brutbild durchwachsen.', action: 'In 5 Tagen erneut pruefen' }
+        ]
+      },
+      {
+        id: 'volk-8', label: 'Volk 8', location: 'Südfeld', colorClass: 'green', statusLabel: 'Happy',
+        hasSensor: false, lastCheck: '25.07.2026',
+        address: 'Kuddewörde, Südfeld - Streuobstwiese', pin: { left: '40%', top: '70%' },
+        weight: '–', weightChip: 'green', weightChipText: 'Kein Sensor',
+        temp: '–', tempChip: 'green', tempChipText: 'Kein Sensor',
+        humidity: '–', humidityChip: 'green', humidityChipText: 'Kein Sensor',
+        swarm: 'Niedrig', swarmChip: 'green', activity: 'Normal', activityChip: 'green',
+        activityChipText: 'im Rahmen', swarmChipText: 'im Rahmen',
+        status: 'Stabil', statusChip: 'green', statusNote: 'Junges Volk, entwickelt sich gut',
+        recommendation: 'Weiterhin woechentlich Futterreserven beobachten.',
+        camera: { in: '–', out: '–' },
+        logs: [
+          { time: '25.07.2026 - 10:20', event: 'Kontrolle', note: 'Ableger entwickelt sich planmaessig.', action: 'Naechste Kontrolle in 7 Tagen' }
+        ]
+      }
+    ];
+
+    let currentHiveId = 'volk-3';
+
+    function activateView(viewId) {
+      views.forEach((view) => {
+        view.classList.toggle('hidden', view.id !== viewId);
+      });
+      navLinks.forEach((link) => {
+        link.classList.toggle('active', link.dataset.view === viewId);
+      });
+    }
+
+    function renderColonyGrid() {
+      if (!colonyGrid) {
+        return;
+      }
+      colonyGrid.innerHTML = '';
+      hives.forEach((hive) => {
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'colony-card';
+        card.dataset.hive = hive.id;
+        card.innerHTML = `
+          <div class="colony-card-head">
+            <h3>${hive.label}</h3>
+            <span class="status-dot ${hive.colorClass}" aria-hidden="true"></span>
+          </div>
+          <p class="colony-meta">${hive.location} · zuletzt kontrolliert ${hive.lastCheck}</p>
+          <div class="colony-metrics">
+            <span>${hive.hasSensor ? hive.weight : 'Kein Sensor'}</span>
+            ${hive.hasSensor ? `<span>${hive.temp}</span>` : ''}
+          </div>
+          <span class="chip ${hive.colorClass}">${hive.statusLabel}</span>
+          <span class="colony-open">Ansehen -&gt;</span>
+        `;
+        card.addEventListener('click', () => {
+          openHive(hive.id);
+          activateView('hive-view');
+        });
+        colonyGrid.appendChild(card);
+      });
+    }
+
+    function setKpi(valueId, chipId, value, chipClass, chipText) {
+      document.getElementById(valueId).textContent = value;
+      const chip = document.getElementById(chipId);
+      chip.textContent = chipText;
+      chip.className = `chip ${chipClass}`;
+    }
+
+    function openHive(hiveId) {
+      const hive = hives.find((item) => item.id === hiveId);
+      if (!hive) {
+        return;
+      }
+      currentHiveId = hiveId;
+
+      document.getElementById('hive-title').textContent = `Einzelansicht: ${hive.label} am ${hive.location}`;
+      document.getElementById('hive-map-label').textContent = hive.label;
+      document.getElementById('hive-address').textContent = hive.address;
+      document.getElementById('hive-log-title').textContent = `Log-Uebersicht ${hive.label}`;
+
+      const pin = document.getElementById('hive-map-pin');
+      pin.style.left = hive.pin.left;
+      pin.style.top = hive.pin.top;
+      const label = document.getElementById('hive-map-label');
+      label.style.left = `calc(${hive.pin.left} + 14px)`;
+      label.style.top = `calc(${hive.pin.top} - 8px)`;
+
+      setKpi('kpi-weight', 'kpi-weight-chip', hive.weight, hive.weightChip, hive.weightChipText);
+      setKpi('kpi-temp', 'kpi-temp-chip', hive.temp, hive.tempChip, hive.tempChipText);
+      setKpi('kpi-humidity', 'kpi-humidity-chip', hive.humidity, hive.humidityChip, hive.humidityChipText);
+      setKpi('kpi-swarm', 'kpi-swarm-chip', hive.swarm, hive.swarmChip, hive.swarmChipText);
+      setKpi('kpi-activity', 'kpi-activity-chip', hive.activity, hive.activityChip, hive.activityChipText);
+      setKpi('kpi-status', 'kpi-status-chip', hive.status, hive.statusChip, hive.statusNote);
+
+      document.getElementById('hive-recommendation').textContent = hive.recommendation;
+
+      const cameraPanel = document.getElementById('camera-panel');
+      const cameraMissingNote = document.getElementById('camera-missing-note');
+      if (hive.hasSensor) {
+        cameraPanel.style.display = '';
+        cameraMissingNote.style.display = 'none';
+        document.getElementById('camera-in').textContent = hive.camera.in;
+        document.getElementById('camera-out').textContent = hive.camera.out;
+        pollenResult.classList.add('is-hidden');
+      } else {
+        cameraPanel.style.display = 'none';
+        cameraMissingNote.style.display = '';
+      }
+
+      const logsBody = document.getElementById('hive-logs-body');
+      logsBody.innerHTML = hive.logs.map((entry) => `
+        <tr>
+          <td>${entry.time}</td>
+          <td><span class="event-tag">${entry.event}</span></td>
+          <td>${entry.note}</td>
+          <td>${entry.action}</td>
+        </tr>
+      `).join('');
+
+      renderSparkline('spark-weight', hive.series ? hive.series.weight : null, '#2b8a57');
+      renderSparkline('spark-temp', hive.series ? hive.series.temp : null, '#c28a18');
+      renderSparkline('spark-humidity', hive.series ? hive.series.humidity : null, '#2f6fa8');
+    }
+
+    function renderSparkline(svgId, values, stroke) {
+      const svg = document.getElementById(svgId);
+      if (!svg) {
+        return;
+      }
+      if (!values || !values.length) {
+        svg.innerHTML = '';
+        svg.style.visibility = 'hidden';
+        return;
+      }
+      svg.style.visibility = 'visible';
+      const max = Math.max(...values);
+      const min = Math.min(...values);
+      const range = max - min || 1;
+      const stepX = 100 / (values.length - 1);
+      const points = values.map((value, index) => {
+        const x = index * stepX;
+        const y = 36 - ((value - min) / range) * 32;
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      }).join(' ');
+      svg.innerHTML = `<polyline points="${points}" style="stroke:${stroke}"></polyline>`;
+    }
+
+    function renderApiaryMap() {
+      if (!apiaryMap) {
+        return;
+      }
+      apiaryMap.innerHTML = '';
+      hives.forEach((hive) => {
+        const pin = document.createElement('button');
+        pin.type = 'button';
+        pin.className = `apiary-pin ${hive.colorClass}`;
+        pin.style.left = hive.pin.left;
+        pin.style.top = hive.pin.top;
+        pin.title = `${hive.label} - ${hive.location}`;
+        pin.addEventListener('click', () => {
+          openHive(hive.id);
+          activateView('hive-view');
+        });
+
+        const label = document.createElement('span');
+        label.className = 'apiary-pin-label';
+        label.style.left = hive.pin.left;
+        label.style.top = hive.pin.top;
+        label.textContent = hive.label;
+
+        apiaryMap.appendChild(pin);
+        apiaryMap.appendChild(label);
+      });
+    }
+
+    function showToast(message) {
+      if (!toastStack) {
+        return;
+      }
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      toastStack.appendChild(toast);
+      setTimeout(() => {
+        toast.remove();
+      }, 3200);
+    }
+
+    function applyTheme(theme) {
+      document.documentElement.dataset.theme = theme;
+      localStorage.setItem('beewise-theme', theme);
+      if (themeToggle) {
+        themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+      }
+    }
+
+    function filterColonies(term) {
+      if (!colonyGrid) {
+        return;
+      }
+      const lowerTerm = term.trim().toLowerCase();
+      colonyGrid.querySelectorAll('.colony-card').forEach((card) => {
+        const hive = hives.find((item) => item.id === card.dataset.hive);
+        const matches = !lowerTerm || hive.label.toLowerCase().includes(lowerTerm) || hive.location.toLowerCase().includes(lowerTerm);
+        card.style.display = matches ? '' : 'none';
+      });
+    }
+
+    function toggleChat(isOpen) {
+      chatDrawer.classList.toggle('open', isOpen);
+      chatBackdrop.classList.toggle('open', isOpen);
+    }
+
+    function appendMessage(text, role) {
+      const bubble = document.createElement('div');
+      bubble.className = `msg ${role}`;
+      bubble.textContent = text;
+      chatMessages.appendChild(bubble);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function buildAgentReply(prompt) {
+      const lowerPrompt = prompt.toLowerCase();
+      if (lowerPrompt.includes('schwarm') || lowerPrompt.includes('alert')) {
+        return 'Bei Schwarmgefahr: 1) Weiselzellen pruefen, 2) Platz schaffen (Zarge), 3) Ablegerbildung vorbereiten, 4) Kontrolle in 24h wiederholen.';
+      }
+      if (lowerPrompt.includes('koenigin') || lowerPrompt.includes('königin')) {
+        return 'Finde zuerst frische Eier und junge Brut als Indikator fuer eine aktive Koenigin. Bei Unsicherheit 2. Kontrolle nach 2 bis 3 Tagen einplanen.';
+      }
+      if (lowerPrompt.includes('pollen') || lowerPrompt.includes('raps')) {
+        return 'Die Kameraerkennung meldet aktuell zwei Einfluege mit Raps-Pollen. Das passt zu aktivem Trachteintrag und Wachstum.';
+      }
+      if (lowerPrompt.includes('varroa') || lowerPrompt.includes('milbe')) {
+        return 'Bei erhoehtem Milbenbefall: Befall zaehlen (Windeldiagnose), Behandlung je nach Saison waehlen (z. B. Ameisensaeure oder Oxalsaeure) und nach 1-2 Wochen eine Kontrollzaehlung durchfuehren.';
+      }
+      if (lowerPrompt.includes('sensor') || lowerPrompt.includes('pi zero') || lowerPrompt.includes('hardware') || lowerPrompt.includes('technik')) {
+        return 'Die Sensorbox misst Gewicht, Temperatur und Feuchtigkeit und wird von einem Raspberry Pi Zero W ausgelesen. Alle 10 Minuten werden die Werte per WLAN an eine MongoDB-Atlas-Cloud-Datenbank gesendet und im Dashboard ausgewertet.';
+      }
+      return 'Ich kann dir konkrete Schritte zu Schwarmalert, Koeniginnenkontrolle, Varroa-Befall, Trachteintrag und naechsten Feldmassnahmen geben.';
+    }
+
+    [...navLinks, ...backLinks].forEach((link) => {
+      link.addEventListener('click', (event) => {
+        event.preventDefault();
+        activateView(link.dataset.view);
+        if (link.dataset.view === 'hive-view') {
+          openHive(currentHiveId);
+        }
+      });
+    });
+
+    [beeAgentTab, openAgentBtn, detailAgentBtn, hardwareAgentBtn].forEach((trigger) => {
+      if (!trigger) {
+        return;
+      }
+      trigger.addEventListener('click', (event) => {
+        event.preventDefault();
+        toggleChat(true);
+        chatText.focus();
+      });
+    });
+
+    [chatBackdrop, closeChatBtn].forEach((closer) => {
+      closer.addEventListener('click', () => toggleChat(false));
+    });
+
+    if (pollenDetectBtn && pollenResult) {
+      pollenDetectBtn.addEventListener('click', () => {
+        pollenResult.classList.remove('is-hidden');
+      });
+    }
+
+    chatForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const prompt = chatText.value.trim();
+      if (!prompt) {
+        return;
+      }
+      appendMessage(prompt, 'user');
+      appendMessage(buildAgentReply(prompt), 'bot');
+      chatText.value = '';
+    });
+
+    if (toggleListBtn && toggleMapBtn) {
+      toggleListBtn.addEventListener('click', () => {
+        toggleListBtn.classList.add('is-active');
+        toggleMapBtn.classList.remove('is-active');
+        colonyGrid.classList.remove('hidden');
+        apiaryMap.classList.add('hidden');
+      });
+      toggleMapBtn.addEventListener('click', () => {
+        toggleMapBtn.classList.add('is-active');
+        toggleListBtn.classList.remove('is-active');
+        apiaryMap.classList.remove('hidden');
+        colonyGrid.classList.add('hidden');
+      });
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener('input', () => {
+        activateView('colonies-view');
+        filterColonies(searchInput.value);
+      });
+    }
+
+    if (printBtn) {
+      printBtn.addEventListener('click', () => {
+        window.print();
+      });
+    }
+
+    if (notifBtn && notifDropdown) {
+      notifBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        notifDropdown.classList.toggle('hidden');
+      });
+      document.addEventListener('click', (event) => {
+        if (!notifDropdown.contains(event.target) && event.target !== notifBtn) {
+          notifDropdown.classList.add('hidden');
+        }
+      });
+    }
+
+    if (themeToggle) {
+      themeToggle.addEventListener('click', () => {
+        const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        applyTheme(nextTheme);
+        showToast(nextTheme === 'dark' ? 'Dark Mode aktiviert' : 'Hell-Modus aktiviert');
+      });
+      applyTheme(localStorage.getItem('beewise-theme') || 'light');
+    }
+
+    if (taskList) {
+      taskList.addEventListener('click', (event) => {
+        const check = event.target.closest('.task-check');
+        if (!check) {
+          return;
+        }
+        const item = check.closest('.task-item');
+        const isDone = check.classList.toggle('is-done');
+        item.classList.toggle('task-done', isDone);
+        showToast(isDone ? 'Aufgabe erledigt ✅' : 'Aufgabe wieder geoeffnet');
+      });
+    }
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === '/' ) {
+        const tag = document.activeElement ? document.activeElement.tagName : '';
+        if (tag !== 'INPUT' && tag !== 'TEXTAREA') {
+          event.preventDefault();
+          searchInput.focus();
+        }
+      }
+      if (event.key === 'Escape') {
+        toggleChat(false);
+        if (notifDropdown) {
+          notifDropdown.classList.add('hidden');
+        }
+      }
+    });
+
+    renderColonyGrid();
+    renderApiaryMap();
+    openHive(currentHiveId);
+  </script>
+</body>
+</html>
