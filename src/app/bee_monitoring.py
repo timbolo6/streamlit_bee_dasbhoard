@@ -44,9 +44,9 @@ rapid_weight_data.loc[:,'created_at'] = pd.to_datetime(
     rapid_weight_data['created_at'])
 rapid_weight_data.loc[:,'end_date'] = pd.to_datetime(rapid_weight_data['end_date'])
 
-# Default date range is the last day of data
+# Default date range is the last 6 months up to the latest day of data
 end_date = raw_data['timestamp'].max()
-start_date = end_date - timedelta(days=30)
+start_date = end_date - pd.DateOffset(months=6)
 
 # """Sidebar components"""
 st.sidebar.title("Settings")
